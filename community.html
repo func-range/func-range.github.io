@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FuncRange 社区：加入玩家 QQ 群，或在 B 站找到我们。">
+    <link rel="icon" type="image/png" href="image/FuncRangeLogo.png">
+    <link rel="apple-touch-icon" href="image/FuncRangeLogo.png">
+    <title>社区 · 创意区间工作室</title>
+    <style>
+        :root {
+            --ink: #f5f4ee;
+            --muted: #9a9b95;
+            --paper: #0a0b0d;
+            --yellow: #fff200;
+            --amber: #ffc400;
+            --panel: #16181c;
+            --panel-2: #0e0f12;
+            --line: rgba(245, 244, 238, .16);
+            --display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+            --sans: "Trebuchet MS", "Microsoft YaHei", sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background:
+                radial-gradient(900px 520px at 88% -140px, rgba(255, 242, 0, .07), transparent 65%),
+                var(--paper);
+            color: var(--ink);
+            font-family: var(--sans);
+            line-height: 1.5;
+        }
+        a { color: inherit; text-decoration: none; }
+        :focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+        .wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 0; border-bottom: 1px solid var(--line);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .04em; }
+        .brand-logo { width: 56px; height: 36px; object-fit: contain; object-position: center; }
+        .brand-name { color: var(--yellow); }
+        .topbar nav { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 14px; color: var(--muted); }
+        .topbar nav a:hover { color: var(--yellow); }
+        .topbar nav a.active { color: var(--yellow); }
+        .topbar nav .nav-cta { padding: 7px 11px; background: var(--yellow); color: #0a0b0d; font-weight: 700; }
+        .topbar nav .nav-cta:hover { background: var(--amber); color: #0a0b0d; }
+
+        .eyebrow { color: var(--yellow); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+
+        .community-hero { padding: 84px 0 50px; border-bottom: 1px solid var(--line); }
+        .community-hero h1 {
+            margin: 14px 0 20px; font-family: var(--display); font-weight: 400;
+            font-size: clamp(56px, 9vw, 108px); line-height: .92; letter-spacing: .01em;
+        }
+        .community-hero h1 em { color: var(--yellow); font-style: normal; }
+        .community-hero p { max-width: 580px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.8; }
+
+        .community-grid {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px;
+            padding: 44px 0 16px;
+        }
+        .community-card {
+            position: relative; display: flex; flex-direction: column;
+            min-height: 310px; padding: 28px;
+            background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--yellow);
+            transition: transform .2s, background .2s, border-color .2s;
+        }
+        .community-card:hover {
+            transform: translateY(-4px); background: #1b1d22;
+            border-color: rgba(255, 242, 0, .55); border-top-color: var(--yellow);
+        }
+        .card-tag { color: var(--yellow); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+        .community-card h2 {
+            margin: 20px 0 10px; font-family: var(--display); font-weight: 400;
+            font-size: clamp(34px, 4vw, 46px); line-height: 1; letter-spacing: .01em;
+        }
+        .community-card p { max-width: 390px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+        .card-action {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            margin-top: auto; padding-top: 36px; font-size: 14px; font-weight: 700;
+        }
+        .card-arrow {
+            display: grid; place-items: center; flex: none;
+            width: 38px; height: 38px; background: var(--yellow); color: #0a0b0d;
+            font-size: 19px; line-height: 1; transition: background .2s, transform .2s;
+        }
+        .community-card:hover .card-arrow { background: var(--amber); transform: translate(2px, -2px); }
+
+        .community-note { margin: 0 0 56px; color: #777a73; font-size: 12px; line-height: 1.7; }
+
+        .end-cta {
+            display: flex; justify-content: space-between; align-items: center; gap: 24px;
+            margin-bottom: 80px; padding: 28px 30px;
+            background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--yellow);
+        }
+        .end-cta p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+        .button {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            flex: none; padding: 12px 18px; background: var(--yellow); border: 1px solid var(--yellow);
+            color: #0a0b0d; font-size: 13px; font-weight: 700;
+            transition: transform .18s, background .18s, border-color .18s;
+        }
+        .button:hover { background: var(--amber); border-color: var(--amber); transform: translateY(-2px); }
+
+        footer {
+            display: flex; justify-content: space-between; gap: 16px;
+            padding: 25px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px;
+        }
+        footer a:hover { color: var(--yellow); }
+
+        @media (max-width: 760px) {
+            .community-hero { padding: 56px 0 38px; }
+            .community-grid { grid-template-columns: 1fr; padding-top: 32px; }
+            .community-card { min-height: 250px; }
+            .community-note { margin-bottom: 40px; }
+            .end-cta { flex-direction: column; align-items: flex-start; margin-bottom: 60px; }
+        }
+        @media (max-width: 620px) {
+            .wrap { width: calc(100% - 32px); }
+            .topbar { padding: 18px 0; gap: 10px; flex-wrap: wrap; }
+            .topbar nav { width: 100%; justify-content: space-between; gap: 8px; font-size: 11.5px; }
+            .topbar nav .nav-cta { padding: 6px 8px; }
+            .brand-logo { width: 46px; height: 30px; }
+            .community-hero h1 { font-size: clamp(50px, 15vw, 72px); }
+            .community-card { padding: 24px; }
+            .community-card h2 { font-size: 34px; }
+            footer { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header class="wrap topbar">
+        <a class="brand" href="index.html"><img class="brand-logo" src="image/FuncRangeLogo.png" alt="FuncRange logo"><span class="brand-name">FUNCRANGE</span></a>
+        <nav aria-label="主导航">
+            <a class="nav-cta" href="cloud.html">前往云存档</a>
+            <a href="community.html" class="active" aria-current="page">社区</a>
+            <a href="index.html#about">关于我们</a>
+            <a href="help.html">帮助</a>
+        </nav>
+    </header>
+
+    <main class="wrap">
+        <header class="community-hero">
+            <div class="eyebrow">Community</div>
+            <h1>来社区，<br><em>找到我们。</em></h1>
+            <p>加入玩家 QQ 群，和大家一起聊游戏、反馈问题；也可以在 B 站看开发日常和最新动态。</p>
+        </header>
+
+        <section class="community-grid" aria-label="社区入口">
+            <a class="community-card qq" href="https://qun.qq.com/universal-share/share?ac=1&amp;authKey=nOPwoWzRI7PC9AqqRymNu%2FJfdwrlYrX0zPkpbPMtacBr%2BvRr3ebLI5fcY6KAPZNa&amp;busi_data=eyJncm91cENvZGUiOiI4MTc0MDYzMDUiLCJ0b2tlbiI6IkRZWXhtL05VbllyN1BDS1ptdnZUekUwTkljcUZGdnJOaEZ5cWtZdnZJVWt1WkM3S3I4NDY0M0wxMnJtQXVDUnciLCJ1aW4iOiIzMjYzNzQ0MjU4In0%3D&amp;data=kOjiAVu4v5HSQmlbKKvPSPs3oWzhPwqPvm5Sql1vcPThMEGc41XEwbakluJBtywH3wCDY13bEqvlW2JK9P3TCA&amp;svctype=4&amp;tempid=h5_group_info" target="_blank" rel="noopener noreferrer">
+                <span class="card-tag">QQ 群 · 817406305</span>
+                <h2>加入玩家群</h2>
+                <p>聊游戏、找队友、反馈问题。也可以在 QQ 里直接搜索群号加入。</p>
+                <span class="card-action">一键加入 <span class="card-arrow">↗</span></span>
+            </a>
+
+            <a class="community-card bilibili" href="https://space.bilibili.com/588753697?spm_id_from=333.1007.0.0" target="_blank" rel="noopener noreferrer">
+                <span class="card-tag">Bilibili</span>
+                <h2>我的 B 站个人主页</h2>
+                <p>看开发日常、游戏展示，以及 FuncRange 的最新动态。</p>
+                <span class="card-action">前往主页 <span class="card-arrow">↗</span></span>
+            </a>
+        </section>
+
+        <p class="community-note">点击卡片即可前往。QQ 群链接会尝试在 QQ 中打开；B 站主页会在新标签页打开。</p>
+
+        <div class="end-cta">
+            <div>
+                <div class="eyebrow">Cloud saves</div>
+                <p>想先取回游戏进度？</p>
+            </div>
+            <a class="button" href="cloud.html">前往云存档 <span>↗</span></a>
+        </div>
+    </main>
+
+    <footer class="wrap">
+        <a href="index.html">FUNCRANGE 游戏开发工作室</a>
+        <span><a href="cloud.html">前往云存档</a> · <a href="community.html">社区</a> · <a href="index.html#about">关于我们</a> · <a href="help.html">帮助</a></span>
+    </footer>
+</body>
+</html>

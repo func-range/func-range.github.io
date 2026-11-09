@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FuncRange 云存档帮助：登录、下载存档和常见问题。">
+    <link rel="icon" type="image/png" href="image/FuncRangeLogo.png">
+    <link rel="apple-touch-icon" href="image/FuncRangeLogo.png">
+    <title>云存档帮助 · 创意区间工作室</title>
+    <style>
+        :root {
+            --ink: #f5f4ee;
+            --muted: #9a9b95;
+            --paper: #0a0b0d;
+            --yellow: #fff200;
+            --amber: #ffc400;
+            --panel: #16181c;
+            --panel-2: #0e0f12;
+            --line: rgba(245, 244, 238, .16);
+            --display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+            --sans: "Trebuchet MS", "Microsoft YaHei", sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background:
+                radial-gradient(900px 520px at 88% -140px, rgba(255, 242, 0, .07), transparent 65%),
+                var(--paper);
+            color: var(--ink);
+            font-family: var(--sans);
+            line-height: 1.5;
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font: inherit; color: inherit; cursor: pointer; }
+        :focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+        .wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 0; border-bottom: 1px solid var(--line);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .04em; }
+        .brand-logo { width: 56px; height: 36px; object-fit: contain; object-position: center; }
+        .brand-name { color: var(--yellow); }
+        .topbar nav { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 14px; color: var(--muted); }
+        .topbar nav a:hover { color: var(--yellow); }
+        .topbar nav a.active { color: var(--yellow); }
+        .topbar nav .nav-cta { padding: 7px 11px; background: var(--yellow); color: #0a0b0d; font-weight: 700; }
+        .topbar nav .nav-cta:hover { background: var(--amber); color: #0a0b0d; }
+        .eyebrow { color: var(--yellow); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+
+        .help-hero { padding: 76px 0 44px; border-bottom: 1px solid var(--line); }
+        .help-hero h1 {
+            margin: 14px 0 20px; font-family: var(--display); font-weight: 400;
+            font-size: clamp(56px, 9vw, 108px); line-height: .92; letter-spacing: .01em;
+        }
+        .help-hero h1 em { color: var(--yellow); font-style: normal; }
+        .help-hero p { max-width: 520px; margin: 0; color: var(--muted); font-size: 16px; }
+        .hero-link {
+            display: inline-flex; align-items: center; gap: 8px; margin-top: 26px;
+            padding-bottom: 4px; border-bottom: 1px solid var(--yellow);
+            color: var(--yellow); font-size: 13px; font-weight: 700;
+        }
+
+        .help-layout {
+            display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 64px;
+            padding: 54px 0 100px; align-items: start;
+        }
+        .help-layout > * { min-width: 0; }
+        .toc {
+            position: sticky; top: 28px; display: flex; flex-direction: column; gap: 13px;
+            padding-left: 18px; border-left: 1px solid var(--line);
+            color: var(--muted); font-size: 13px;
+        }
+        .toc strong { margin-bottom: 4px; color: var(--ink); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+        .toc a { transition: color .15s, transform .15s; }
+        .toc a:hover { color: var(--yellow); transform: translateX(3px); }
+
+        .help-body { max-width: 760px; }
+        .help-body section { padding: 0 0 48px; margin-bottom: 48px; border-bottom: 1px solid var(--line); scroll-margin-top: 28px; }
+        .help-body section:last-child { margin-bottom: 0; border-bottom: 0; padding-bottom: 0; }
+        .help-body h2 {
+            margin: 0 0 18px; font-family: var(--display); font-weight: 400;
+            font-size: 34px; line-height: 1.05; letter-spacing: .01em;
+        }
+        .help-body h3 { margin: 26px 0 8px; font-size: 15px; }
+        .help-body p, .help-body li { color: #b9bab3; font-size: 14px; line-height: 1.85; }
+        .help-body p { margin: 0 0 12px; }
+        .help-body ul, .help-body ol { margin: 10px 0 14px; padding-left: 22px; }
+        .help-body li { margin-bottom: 6px; }
+        .help-body strong { color: var(--ink); }
+        .help-body a.inline { color: var(--yellow); text-decoration: underline; text-underline-offset: 3px; }
+
+        .steps { counter-reset: step; list-style: none; padding: 0; }
+        .steps li { position: relative; margin-bottom: 14px; padding-left: 40px; }
+        .steps li::before {
+            counter-increment: step; content: counter(step);
+            position: absolute; left: 0; top: 2px;
+            display: grid; place-items: center; width: 24px; height: 24px;
+            background: var(--yellow); color: #0a0b0d;
+            font-family: var(--display); font-size: 15px; line-height: 1;
+        }
+
+        .note {
+            margin: 18px 0; padding: 15px 18px;
+            background: rgba(255, 242, 0, .045); border-left: 3px solid var(--yellow);
+            color: #c8c9c1; font-size: 13px; line-height: 1.7;
+        }
+        .note strong { color: var(--yellow); }
+
+        .faq { padding: 16px 0; border-bottom: 1px solid var(--line); }
+        .faq:last-of-type { border-bottom: 0; }
+        .faq summary {
+            display: flex; justify-content: space-between; gap: 14px;
+            cursor: pointer; list-style: none; font-size: 14.5px; font-weight: 700;
+        }
+        .faq summary::-webkit-details-marker { display: none; }
+        .faq summary::after { content: "+"; flex: none; color: var(--yellow); font-size: 18px; line-height: 1; }
+        .faq[open] summary::after { content: "−"; }
+        .faq p { margin: 10px 0 0; color: var(--muted); font-size: 13.5px; }
+        .faq ul { margin: 8px 0 0; }
+
+        .end-cta {
+            display: flex; justify-content: space-between; align-items: center; gap: 24px;
+            margin-top: 54px; padding: 28px 30px;
+            background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--yellow);
+        }
+        .end-cta p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+        .button {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            flex: none; padding: 12px 18px; background: var(--yellow); border: 1px solid var(--yellow);
+            color: #0a0b0d; font-size: 13px; font-weight: 700;
+            transition: transform .18s, background .18s, border-color .18s;
+        }
+        .button:hover { background: var(--amber); border-color: var(--amber); transform: translateY(-2px); }
+
+        footer {
+            display: flex; justify-content: space-between; gap: 16px;
+            padding: 25px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px;
+        }
+        footer a:hover { color: var(--yellow); }
+
+        @media (max-width: 860px) {
+            .help-layout { grid-template-columns: minmax(0, 1fr); gap: 34px; padding-top: 36px; }
+            .toc {
+                position: static; flex-direction: row; flex-wrap: wrap; gap: 10px 18px;
+                padding: 0 0 16px; border-left: 0; border-bottom: 1px solid var(--line);
+            }
+            .toc strong { width: 100%; }
+        }
+        @media (max-width: 620px) {
+            .wrap { width: calc(100% - 32px); }
+            .topbar { padding: 18px 0; gap: 10px; flex-wrap: wrap; }
+            .topbar nav { width: 100%; justify-content: space-between; gap: 8px; font-size: 11.5px; }
+            .topbar nav .nav-cta { padding: 6px 8px; }
+            .brand-logo { width: 46px; height: 30px; }
+            .help-hero { padding: 50px 0 32px; }
+            .help-hero h1 { font-size: clamp(50px, 15vw, 72px); }
+            .help-layout { padding-bottom: 70px; }
+            .help-body h2 { font-size: 28px; }
+            .end-cta { flex-direction: column; align-items: flex-start; }
+            footer { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header class="wrap topbar">
+        <a class="brand" href="index.html"><img class="brand-logo" src="image/FuncRangeLogo.png" alt="FuncRange logo"><span class="brand-name">FUNCRANGE</span></a>
+        <nav aria-label="主导航">
+            <a class="nav-cta" href="cloud.html">前往云存档</a>
+            <a href="community.html">社区</a>
+            <a href="index.html#about">关于我们</a>
+            <a href="help.html" class="active" aria-current="page">帮助</a>
+        </nav>
+    </header>
+
+    <main class="wrap">
+        <header class="help-hero">
+            <div class="eyebrow">Help</div>
+            <h1>云存档<em>帮助。</em></h1>
+            <p>登录、下载和常见问题都在这里。</p>
+            <a class="hero-link" href="cloud.html">前往云存档 <span>↗</span></a>
+        </header>
+
+        <div class="help-layout">
+            <nav class="toc" aria-label="本页目录">
+                <strong>目录</strong>
+                <a href="#what">云存档是什么</a>
+                <a href="#download">下载与使用</a>
+                <a href="#login">登录</a>
+                <a href="#level">等级与额度</a>
+                <a href="#faq">常见问题</a>
+                <a href="#security">安全提示</a>
+            </nav>
+
+            <div class="help-body">
+                <section id="what">
+                    <h2>云存档是什么</h2>
+                    <p>玩过的游戏可以把存档保存在云端。登录后，这里会列出你的游戏和存档，换设备时也能把进度找回来。</p>
+                    <p>游戏负责上传存档，网页负责查看和下载。云端保存的进度和游戏里的最新进度保持一致。</p>
+                    <div class="note"><strong>简单说：</strong>游戏上传，你在这里取回。</div>
+                </section>
+
+                <section id="download">
+                    <h2>下载与使用</h2>
+                    <ol class="steps">
+                        <li>在云存档页选择游戏和存档，点「下载」。</li>
+                        <li>浏览器会把存档保存到你的设备。</li>
+                        <li>把文件放进游戏能读取的位置，或在游戏内使用导入功能。</li>
+                    </ol>
+                    <div class="note"><strong>提示：</strong>网页不会修改云端存档。想更换进度，请在游戏里操作。</div>
+                    <p>如果游戏里没有导入入口，可以查看游戏的说明，或通过<a class="inline" href="community.html">社区</a>联系我们。</p>
+                </section>
+
+                <section id="login">
+                    <h2>登录</h2>
+                    <p>第一次使用时，在登录页填写我们提供的服务地址，然后输入用户名和密码。地址会自动记住，之后直接登录即可。</p>
+                    <ul>
+                        <li><strong>保持登录：</strong>勾选后，下次打开网页不用重新登录。公共设备请不要勾选。</li>
+                        <li>同一个账户可以在多台设备上登录，互不影响。</li>
+                        <li>忘记密码或无法登录？请联系我们。</li>
+                    </ul>
+                </section>
+
+                <section id="level">
+                    <h2>等级与额度</h2>
+                    <p>使用云存档会积累经验。等级越高，每天能做的云存档操作和总存储空间越大。控制台顶部会显示你当前的等级、经验进度和当日用量。</p>
+                    <ul>
+                        <li><strong>每日经验：</strong>每天第一次登录网页、上传或下载存档时 +5 经验，一天只加一次。</li>
+                        <li><strong>新游戏奖励：</strong>第一次上传或下载某一款游戏的存档时 +25 经验，每款游戏只加一次。</li>
+                        <li><strong>等级曲线：</strong>从第 2 级起，升到第 L 级需要 (L-1)² × 25 经验。</li>
+                        <li><strong>每日次数：</strong>上传和下载会消耗当天次数。默认每天 50 次，每升 1 级 +10 次，最多 500 次；每天 0 点（服务器本地时间）重置。</li>
+                        <li><strong>存储空间：</strong>所有云存档加起来的上限。默认 64 MB，每升 1 级 +8 MB，最多 512 MB。删除存档会释放空间。</li>
+                    </ul>
+                    <p>服务器可以在配置中调整基础值和成长幅度，控制台显示的始终是你实际可用的额度。查看存档列表和刷新网页不消耗每日次数。</p>
+                    <div class="note"><strong>不是网盘：</strong>云存档只用来保存游戏进度，请不要上传无关的大文件。</div>
+                </section>
+
+                <section id="faq">
+                    <h2>常见问题</h2>
+
+                    <details class="faq">
+                        <summary>提示「无法连接」怎么办？</summary>
+                        <p>先确认网络正常，再检查登录页填写的服务地址是否正确。稍等片刻重试；如果还是不行，请联系我们。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>登录提示「登录已失效」？</summary>
+                        <p>重新登录一次即可。如果更换过密码，其他设备上的登录也可能需要重新进行。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>可以修改用户名或昵称吗？</summary>
+                        <p>可以。登录后点控制台右上角的「账户设置」：用户名用于登录，需要输入当前密码才能修改；昵称是控制台顶部显示的名字，注册时默认就是用户名，留空也会回到用户名。修改用户名后，其它设备不会被退出登录，但下次登录要使用新用户名。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>登录成功，但看不到游戏或存档？</summary>
+                        <p>游戏需要先上传过至少一份存档，才会出现在列表里。可以点右上角「刷新」再试，并确认登录的是同一个账户。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>下载后游戏里读不到存档？</summary>
+                        <p>请确认文件放进了游戏能读取的位置，或使用游戏内的导入功能。不同游戏的存档位置可能不同，可以查看游戏说明或联系我们。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>可以在网页上传或删除存档吗？</summary>
+                        <p>不能。这里只查看和下载存档，避免误操作云端数据。上传和删除都由游戏完成。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>提示「今天的云存档次数已经用完」？</summary>
+                        <p>上传和下载每天有次数上限，会在服务器本地时间 0 点重置。明天再试即可；提升等级可以增加每日次数。查看游戏和存档列表、刷新网页不算使用次数。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>提示「云存档空间已满」？</summary>
+                        <p>你的所有云存档加起来已经到了当前等级的上限。可以在游戏内删除不再需要的旧存档来释放空间，或提升等级获得更大的空间。网页目前不能删除存档。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>某些游戏提示「暂未开放」？</summary>
+                        <p>这个游戏没有被加入当前服务器的允许列表。请联系我们确认该游戏是否支持这台服务器。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>注册按钮提示不可用？</summary>
+                        <p>目前可能未开放注册。请联系我们了解情况。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>提示「操作太频繁」？</summary>
+                        <p>稍等一会再试即可，不要连续快速点击。</p>
+                    </details>
+
+                    <details class="faq">
+                        <summary>下载会覆盖云端存档吗？</summary>
+                        <p>不会。下载只读取云端文件；只有游戏里的上传才会更新云端进度。</p>
+                    </details>
+                </section>
+
+                <section id="security">
+                    <h2>安全提示</h2>
+                    <ul>
+                        <li>在公共电脑上不要勾选「保持登录」，用完后点「退出」。</li>
+                        <li>网页不会保存你的密码。</li>
+                        <li>网页只读取和下载存档，不会修改云端数据。</li>
+                    </ul>
+                </section>
+
+                <div class="end-cta">
+                    <div>
+                        <div class="eyebrow">Ready?</div>
+                        <p>去取回你的存档吧。</p>
+                    </div>
+                    <a class="button" href="cloud.html">打开云存档 <span>↗</span></a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="wrap">
+        <a href="index.html">FUNCRANGE 游戏开发工作室</a>
+        <span><a href="community.html">社区</a> · <a href="index.html#about">关于我们</a> · <a href="cloud.html">前往云存档</a></span>
+    </footer>
+</body>
+</html>

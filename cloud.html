@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FuncRange 云存档：登录账户，查看玩过的游戏与云存档，一键下载到本地。">
+    <link rel="icon" type="image/png" href="image/FuncRangeLogo.png">
+    <link rel="apple-touch-icon" href="image/FuncRangeLogo.png">
+    <title>云存档 · 创意区间工作室</title>
+    <style>
+        :root {
+            --ink: #f5f4ee;
+            --muted: #9a9b95;
+            --paper: #0a0b0d;
+            --yellow: #fff200;
+            --amber: #ffc400;
+            --panel: #16181c;
+            --panel-2: #0e0f12;
+            --line: rgba(245, 244, 238, .16);
+            --ok: #a6dc7c;
+            --bad: #ff9d8a;
+            --display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+            --sans: "Trebuchet MS", "Microsoft YaHei", sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        [hidden] { display: none !important; }
+        body {
+            margin: 0;
+            background:
+                radial-gradient(900px 520px at 88% -140px, rgba(255, 242, 0, .07), transparent 65%),
+                var(--paper);
+            color: var(--ink);
+            font-family: var(--sans);
+            line-height: 1.5;
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font: inherit; color: inherit; cursor: pointer; }
+        input { font: inherit; }
+        :focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+        .wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 0; border-bottom: 1px solid var(--line);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .04em; }
+        .brand-logo { width: 56px; height: 36px; object-fit: contain; object-position: center; }
+        .brand-name { color: var(--yellow); }
+        .topbar nav { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 14px; color: var(--muted); }
+        .topbar nav a:hover { color: var(--yellow); }
+        .topbar nav a.active { color: var(--yellow); }
+        .topbar nav .nav-cta { padding: 7px 11px; background: var(--yellow); color: #0a0b0d; font-weight: 700; }
+        .topbar nav .nav-cta:hover { background: var(--amber); color: #0a0b0d; }
+
+        .eyebrow { color: var(--yellow); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+
+        /* ---------- 登录 ---------- */
+        .login-shell {
+            display: grid; grid-template-columns: 1.05fr .95fr; gap: 80px;
+            align-items: center; min-height: calc(100vh - 220px); padding: 70px 0;
+        }
+        .login-hero h1 {
+            margin: 16px 0 22px; font-family: var(--display); font-weight: 400;
+            font-size: clamp(54px, 7.6vw, 100px); line-height: .93; letter-spacing: .01em;
+        }
+        .login-hero h1 em { color: var(--yellow); font-style: normal; }
+        .login-hero p { max-width: 420px; margin: 0; color: var(--muted); font-size: 17px; }
+
+        .login-card {
+            width: 100%; max-width: 430px; justify-self: end;
+            padding: 34px 32px 24px;
+            background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--yellow);
+        }
+        .card-title h2 {
+            margin: 0 0 4px; font-family: var(--display); font-weight: 400;
+            font-size: 40px; line-height: 1; letter-spacing: .01em;
+        }
+        .card-title p { margin: 0 0 26px; color: var(--muted); font-size: 13px; }
+
+        .field { margin-bottom: 18px; }
+        .field label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; font-weight: 600; }
+        .field input {
+            width: 100%; padding: 13px 14px; border: 1px solid var(--line);
+            background: var(--panel-2); color: var(--ink); border-radius: 0; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .field input:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(255, 242, 0, .12); }
+        .field input::placeholder { color: #5f625c; }
+        .field input:disabled { opacity: .55; }
+        .input-row { display: flex; gap: 8px; }
+        .input-row input { flex: 1; min-width: 0; }
+        .input-action {
+            flex: none; padding: 0 14px; background: transparent;
+            border: 1px solid var(--line); color: var(--muted); font-size: 12.5px;
+        }
+        .input-action:hover { border-color: var(--yellow); color: var(--yellow); }
+
+        .checkline {
+            display: flex; gap: 9px; align-items: center; margin: 2px 0 18px;
+            color: var(--muted); font-size: 13px; cursor: pointer;
+        }
+        .checkline input { width: 15px; height: 15px; accent-color: var(--yellow); }
+
+        .button {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 13px 18px; background: var(--yellow); border: 1px solid var(--yellow);
+            color: #0a0b0d; font-size: 13.5px; font-weight: 700;
+            transition: transform .18s, background .18s, border-color .18s, color .18s;
+        }
+        .button:hover { background: var(--amber); border-color: var(--amber); transform: translateY(-2px); }
+        .button.ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+        .button.ghost:hover { border-color: var(--yellow); color: var(--yellow); background: transparent; transform: none; }
+        .button.small { padding: 9px 14px; font-size: 12.5px; }
+        .button.block { width: 100%; }
+        .button:disabled { opacity: .55; cursor: progress; transform: none; }
+
+        .link-btn {
+            padding: 0; background: none; border: 0; color: var(--yellow);
+            font-size: inherit; text-decoration: underline; text-underline-offset: 3px;
+        }
+        .auth-switch { display: flex; gap: 8px; justify-content: center; margin-top: 16px; font-size: 13px; color: var(--muted); }
+
+        .alert {
+            margin: 0 0 16px; padding: 13px 15px; font-size: 13px;
+            background: rgba(255, 85, 60, .07); border: 1px solid rgba(255, 130, 110, .32);
+        }
+        .alert strong { display: block; margin-bottom: 4px; color: var(--bad); }
+        .alert p { margin: 0; color: var(--ink); line-height: 1.55; }
+        .alert ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
+
+        .server-quiet { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+        .server-toggle {
+            display: flex; align-items: center; gap: 8px; width: 100%;
+            padding: 0; background: none; border: 0; color: var(--muted);
+            font-size: 12.5px; text-align: left;
+        }
+        .server-toggle:hover { color: var(--ink); }
+        .server-change { margin-left: auto; color: var(--yellow); }
+        .server-panel { margin-top: 14px; padding: 14px; background: var(--panel-2); border: 1px solid var(--line); }
+        .server-panel label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 600; }
+        .server-panel input {
+            width: 100%; padding: 11px 12px; border: 1px solid var(--line);
+            background: #0a0b0d; color: var(--ink); outline: none;
+        }
+        .server-panel input:focus { border-color: var(--yellow); }
+        .hint { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+        .hint.ok { color: var(--ok); }
+        .hint.bad { color: var(--bad); }
+        .hint.busy { color: var(--amber); }
+        .login-help { margin: 16px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
+        .login-help a { color: var(--yellow); }
+
+        /* ---------- 控制台 ---------- */
+        .dash { padding: 48px 0 90px; }
+        .dash-head { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 20px; }
+        .account { display: flex; align-items: center; gap: 16px; min-width: 0; }
+        .avatar {
+            display: grid; place-items: center; flex: none;
+            width: 52px; height: 52px; background: var(--yellow); color: #0a0b0d;
+            font-family: var(--display); font-size: 28px; line-height: 1;
+        }
+        .account-name {
+            margin: 2px 0 0; font-family: var(--display); font-weight: 400;
+            font-size: clamp(30px, 3.5vw, 42px); line-height: 1; word-break: break-all;
+        }
+        .account-meta { margin: 5px 0 0; color: var(--muted); font-size: 12.5px; }
+        .dash-actions { display: flex; flex-wrap: wrap; gap: 8px; flex: none; }
+
+        .summary {
+            display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px;
+            margin: 0 0 26px; padding: 0 0 22px; border-bottom: 1px solid var(--line);
+            color: var(--muted); font-size: 13.5px;
+        }
+        .summary strong {
+            color: var(--yellow); font-family: var(--display); font-size: 22px;
+            font-weight: 400; letter-spacing: .03em; font-variant-numeric: tabular-nums;
+        }
+        .summary-sep { color: rgba(245, 244, 238, .28); padding: 0 3px; }
+        .summary-quota { color: var(--muted); font-size: 12px; }
+
+        /* ---------- 等级与用量 ---------- */
+        .progress-strip {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px;
+            margin: -12px 0 26px; padding: 16px 18px;
+            background: var(--panel-2); border: 1px solid var(--line);
+        }
+        .level-badge { display: flex; align-items: baseline; gap: 8px; }
+        .level-label {
+            color: var(--muted); font-size: 11px; font-weight: 700;
+            letter-spacing: .14em; text-transform: uppercase;
+        }
+        .level-badge strong {
+            color: var(--yellow); font-family: var(--display); font-weight: 400;
+            font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums;
+        }
+        .xp-block { flex: 1 1 220px; min-width: 170px; }
+        .xp-meta {
+            display: flex; justify-content: space-between; gap: 12px;
+            margin-bottom: 6px; color: var(--muted); font-size: 11.5px;
+        }
+        .xp-meta strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+        .xp-track { height: 6px; background: #23262d; overflow: hidden; }
+        .xp-fill {
+            display: block; width: 0; height: 100%;
+            background: linear-gradient(90deg, var(--amber), var(--yellow));
+            transition: width .4s ease;
+        }
+        .usage-line {
+            display: flex; flex-wrap: wrap; gap: 6px 20px;
+            color: var(--muted); font-size: 12px;
+        }
+        .usage-line strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+        .usage-line strong.warn { color: var(--bad); }
+
+        .console { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; align-items: start; }
+        .panel { background: var(--panel); border: 1px solid var(--line); }
+        .panel-head {
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+            padding: 20px; border-bottom: 1px solid var(--line);
+        }
+        .panel-head > div { min-width: 0; }
+        .panel-head h2 {
+            margin: 0; font-family: var(--display); font-weight: 400;
+            font-size: 26px; line-height: 1.05; letter-spacing: .01em; word-break: break-all;
+        }
+        .panel-sub { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+        .pill {
+            flex: none; min-width: 26px; padding: 3px 8px; text-align: center;
+            border: 1px solid var(--line); color: var(--yellow); font-size: 12px;
+        }
+
+        .game-list { padding: 8px; max-height: 540px; overflow: auto; }
+        .game-item {
+            display: flex; flex-direction: column; gap: 3px; width: 100%;
+            padding: 13px 12px; text-align: left; background: transparent; border: 0;
+            border-left: 2px solid transparent; color: var(--ink);
+            transition: background .15s, border-color .15s;
+        }
+        .game-item:hover { background: #1b1d22; }
+        .game-item.active { background: #1d1e13; border-left-color: var(--yellow); }
+        .game-name { font-weight: 700; font-size: 14.5px; line-height: 1.3; word-break: break-all; }
+        .game-meta { color: var(--muted); font-size: 11.5px; }
+        .game-warn { color: var(--bad); font-size: 11px; }
+
+        .saves-body { padding: 20px; }
+        .save-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .save-card {
+            display: flex; flex-direction: column; gap: 12px;
+            padding: 16px; background: #131519; border: 1px solid var(--line);
+            transition: border-color .15s, transform .15s, background .15s;
+        }
+        .save-card:hover { border-color: rgba(255, 242, 0, .45); background: #181a1f; transform: translateY(-2px); }
+        .save-card h3 { margin: 0; font-size: 15.5px; font-weight: 700; line-height: 1.35; word-break: break-all; }
+        .save-card-meta { margin: 0; color: var(--muted); font-size: 12px; }
+        .save-card-actions { display: flex; gap: 8px; margin-top: auto; }
+        .save-card-actions .button { flex: 1; }
+
+        .empty { padding: 58px 24px; text-align: center; color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+        .empty::before { content: "◎"; display: block; margin-bottom: 10px; color: var(--yellow); font-size: 22px; }
+        .empty.small { padding: 24px 14px; font-size: 12.5px; }
+        .empty.small::before { font-size: 18px; margin-bottom: 6px; }
+        .empty span { font-size: 12px; opacity: .8; }
+        .inline-error { padding: 24px 4px; font-size: 13px; }
+        .inline-error strong { display: block; margin-bottom: 5px; color: var(--bad); }
+        .inline-error p { margin: 0 0 14px; color: var(--muted); line-height: 1.6; }
+
+        .skeleton {
+            background: linear-gradient(90deg, #191b20 25%, #23262d 50%, #191b20 75%);
+            background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 2px;
+        }
+        .skeleton.game-skeleton { height: 52px; margin: 4px 8px; }
+        .skeleton.save-skeleton { height: 122px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ---------- 提示与弹层 ---------- */
+        .toast {
+            position: fixed; left: 50%; bottom: 28px; z-index: 60;
+            display: flex; flex-direction: column; gap: 3px;
+            min-width: 240px; max-width: min(540px, calc(100vw - 32px));
+            padding: 13px 18px; transform: translateX(-50%);
+            background: #181a1e; border: 1px solid var(--line); border-left: 3px solid var(--yellow);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .45); font-size: 13px;
+            animation: toast-in .18s ease-out;
+        }
+        .toast strong { color: var(--yellow); }
+        .toast span { color: var(--muted); line-height: 1.5; }
+        .toast.error { border-left-color: var(--bad); }
+        .toast.error strong { color: var(--bad); }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translate(-50%, 8px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        /* ---------- 账户设置 ---------- */
+        .modal {
+            position: fixed; inset: 0; z-index: 50;
+            display: grid; place-items: center; padding: 20px;
+        }
+        .modal-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .68); }
+        .modal-panel {
+            position: relative; width: min(460px, 100%); max-height: calc(100vh - 40px);
+            overflow: auto; padding: 24px;
+            background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--yellow);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .55);
+        }
+        .modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+        .modal-head h2 {
+            margin: 6px 0 0; font-family: var(--display); font-weight: 400;
+            font-size: 34px; line-height: 1; letter-spacing: .01em;
+        }
+        .modal-close {
+            flex: none; width: 34px; height: 34px; padding: 0;
+            background: transparent; border: 1px solid var(--line);
+            color: var(--muted); font-size: 20px; line-height: 1;
+        }
+        .modal-close:hover { border-color: var(--yellow); color: var(--yellow); }
+        .modal-sub { margin: 10px 0 20px; color: var(--muted); font-size: 12.5px; }
+        .settings-form { display: flex; flex-direction: column; gap: 12px; }
+        .settings-form .field { margin-bottom: 0; }
+        .settings-form .alert { margin: 0; }
+        .settings-form .button { align-self: flex-start; }
+        .settings-hint { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+        .settings-hint strong { color: var(--ink); font-weight: 600; }
+        .settings-divider { margin: 20px 0; border: 0; border-top: 1px solid var(--line); }
+
+        footer {
+            display: flex; justify-content: space-between; gap: 16px;
+            padding: 25px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px;
+        }
+        footer a:hover { color: var(--yellow); }
+
+        @media (max-width: 980px) {
+            .login-shell { grid-template-columns: 1fr; gap: 36px; min-height: 0; padding: 52px 0 80px; }
+            .login-card { justify-self: start; max-width: 460px; }
+            .console { grid-template-columns: 1fr; }
+            .game-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; max-height: 280px; }
+            .skeleton.game-skeleton { margin: 4px; }
+        }
+        @media (max-width: 700px) {
+            .save-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 620px) {
+            .wrap { width: calc(100% - 32px); }
+            .topbar { padding: 18px 0; gap: 10px; flex-wrap: wrap; }
+            .topbar nav { width: 100%; justify-content: space-between; gap: 8px; font-size: 11.5px; }
+            .topbar nav .nav-cta { padding: 6px 8px; }
+            .brand-logo { width: 46px; height: 30px; }
+            .login-hero h1 { font-size: clamp(46px, 13vw, 66px); }
+            .login-card { padding: 26px 20px 20px; }
+            .modal { padding: 12px; }
+            .modal-panel { padding: 20px 18px; max-height: calc(100vh - 24px); }
+            .dash { padding-top: 32px; }
+            .dash-head { flex-direction: column; align-items: flex-start; }
+            .account-name { font-size: 32px; }
+            .summary strong { font-size: 19px; }
+            .game-list { grid-template-columns: 1fr; }
+            .panel-head { padding: 16px; }
+            .saves-body { padding: 16px; }
+            footer { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header class="wrap topbar">
+        <a class="brand" href="index.html"><img class="brand-logo" src="image/FuncRangeLogo.png" alt="FuncRange logo"><span class="brand-name">FUNCRANGE</span></a>
+        <nav aria-label="主导航">
+            <a class="nav-cta" href="cloud.html" aria-current="page">前往云存档</a>
+            <a href="community.html">社区</a>
+            <a href="index.html#about">关于我们</a>
+            <a href="help.html">帮助</a>
+        </nav>
+    </header>
+
+    <main class="wrap">
+        <!-- 登录 -->
+        <section id="login-view" class="login-shell">
+            <div class="login-hero">
+                <div class="eyebrow">Cloud Saves</div>
+                <h1>把进度<br>带到<em>云端。</em></h1>
+                <p>登录后查看所有云存档，随时下载到本地。</p>
+            </div>
+
+            <div class="login-card">
+                <div class="card-title">
+                    <h2 id="auth-title">登录</h2>
+                    <p id="auth-sub">使用你的 FuncRange 账户。</p>
+                </div>
+                <form id="auth-form" novalidate>
+                    <div class="field">
+                        <label for="username-input">用户名</label>
+                        <input id="username-input" type="text" autocomplete="username" maxlength="32" spellcheck="false" required>
+                    </div>
+                    <div class="field">
+                        <label for="password-input">密码</label>
+                        <div class="input-row">
+                            <input id="password-input" type="password" autocomplete="current-password" maxlength="128" required>
+                            <button type="button" class="input-action" id="toggle-password" aria-label="显示密码">显示</button>
+                        </div>
+                    </div>
+                    <label class="checkline"><input type="checkbox" id="remember-input" checked> 在这台设备上保持登录</label>
+                    <div class="alert" id="auth-error" role="alert" hidden></div>
+                    <button class="button block" type="submit" id="auth-submit">登录</button>
+                    <div class="auth-switch">
+                        <span id="auth-switch-label">还没有账户？</span>
+                        <button type="button" class="link-btn" id="auth-switch-btn">注册一个</button>
+                    </div>
+                </form>
+
+                <div class="server-quiet">
+                    <button type="button" class="server-toggle" id="server-toggle" aria-expanded="false">
+                        <span id="server-current">还没有填写服务地址</span>
+                        <span class="server-change" id="server-change">填写</span>
+                    </button>
+                    <div class="server-panel" id="server-panel" hidden>
+                        <label for="server-input">服务地址</label>
+                        <div class="input-row">
+                            <input id="server-input" type="text" inputmode="url" placeholder="输入服务地址" autocomplete="url" spellcheck="false">
+                            <button type="button" class="button ghost small" id="test-btn">测试</button>
+                        </div>
+                        <p class="hint" id="server-status">填写我们提供的服务地址。</p>
+                    </div>
+                </div>
+                <p class="login-help">遇到问题？<a href="help.html">查看帮助</a></p>
+            </div>
+        </section>
+
+        <!-- 控制台 -->
+        <section id="dash-view" class="dash" hidden>
+            <div class="dash-head">
+                <div class="account">
+                    <div class="avatar" id="avatar" aria-hidden="true">·</div>
+                    <div>
+                        <div class="eyebrow">云存档</div>
+                        <h1 class="account-name" id="account-name">正在验证登录…</h1>
+                        <p class="account-meta" id="account-meta">正在读取存档…</p>
+                    </div>
+                </div>
+                <div class="dash-actions">
+                    <button type="button" class="button ghost small" id="settings-btn">账户设置</button>
+                    <button type="button" class="button ghost small" id="refresh-btn">刷新</button>
+                    <button type="button" class="button ghost small" id="logout-btn">退出</button>
+                </div>
+            </div>
+
+            <p class="summary" id="summary" aria-live="polite">
+                <span><strong id="sum-saves">—</strong> 份存档</span>
+                <span class="summary-sep">/</span>
+                <span>占用 <strong id="sum-size">—</strong><span class="summary-quota"> / <span id="sum-quota">—</span></span></span>
+                <span class="summary-sep">/</span>
+                <span>更新于 <strong id="sum-updated">—</strong></span>
+            </p>
+
+            <div class="progress-strip" id="progress-strip" hidden>
+                <div class="level-badge">
+                    <span class="level-label">等级</span>
+                    <strong id="level-value">—</strong>
+                </div>
+                <div class="xp-block">
+                    <div class="xp-meta">
+                        <span><strong id="xp-current">—</strong></span>
+                        <span id="xp-next">—</span>
+                    </div>
+                    <div class="xp-track" id="xp-track" role="progressbar" aria-label="等级经验"
+                         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <span class="xp-fill" id="xp-fill"></span>
+                    </div>
+                </div>
+                <div class="usage-line">
+                    <span>今日云存档 <strong id="daily-value">—</strong></span>
+                    <span>存储 <strong id="storage-value">—</strong></span>
+                </div>
+            </div>
+
+            <div class="console">
+                <aside class="panel">
+                    <div class="panel-head">
+                        <h2>你的游戏</h2>
+                        <span class="pill" id="games-count">0</span>
+                    </div>
+                    <div class="game-list" id="game-list" aria-live="polite"></div>
+                </aside>
+
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h2 id="saves-title">选择一个游戏</h2>
+                            <p class="panel-sub" id="saves-sub">查看这个游戏的云存档。</p>
+                        </div>
+                    </div>
+                    <div class="saves-body" id="saves-body"></div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <footer class="wrap">
+        <a href="index.html">FUNCRANGE 游戏开发工作室</a>
+        <span><a href="community.html">社区</a> · <a href="index.html#about">关于我们</a> · <a href="help.html">帮助</a></span>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <!-- 账户设置 -->
+    <div class="modal" id="settings-modal" hidden>
+        <div class="modal-backdrop" data-close="settings"></div>
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+            <div class="modal-head">
+                <div>
+                    <div class="eyebrow">Account</div>
+                    <h2 id="settings-title">账户设置</h2>
+                </div>
+                <button type="button" class="modal-close" id="settings-close" aria-label="关闭账户设置">×</button>
+            </div>
+            <p class="modal-sub">修改登录用户名，或控制台顶部显示的昵称。</p>
+
+            <form id="rename-form" class="settings-form">
+                <div class="field">
+                    <label for="rename-input">用户名（登录名）</label>
+                    <input id="rename-input" type="text" maxlength="32" autocomplete="username" spellcheck="false" required>
+                    <p class="settings-hint">当前：<strong id="settings-current-username">—</strong>。修改后请用新用户名登录；已登录的设备不会退出。</p>
+                </div>
+                <div class="field">
+                    <label for="rename-password">当前密码</label>
+                    <input id="rename-password" type="password" maxlength="128" autocomplete="current-password" required>
+                </div>
+                <div class="alert" id="rename-error" role="alert" hidden></div>
+                <button class="button small" type="submit" id="rename-submit">保存用户名</button>
+            </form>
+
+            <hr class="settings-divider">
+
+            <form id="nickname-form" class="settings-form">
+                <div class="field">
+                    <label for="nickname-input">昵称</label>
+                    <input id="nickname-input" type="text" maxlength="64" autocomplete="off" spellcheck="false">
+                    <p class="settings-hint">显示在控制台顶部；留空则使用用户名。</p>
+                </div>
+                <div class="alert" id="nickname-error" role="alert" hidden></div>
+                <button class="button ghost small" type="submit" id="nickname-submit">保存昵称</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    (() => {
+        'use strict';
+
+        const LS = {
+            server: 'funcrange.cloud.server',
+            token: 'funcrange.cloud.token',
+            account: 'funcrange.cloud.account',
+            progress: 'funcrange.cloud.progress',
+            expires: 'funcrange.cloud.expires',
+            remember: 'funcrange.cloud.remember',
+        };
+
+        const ERROR_TEXT = {
+            invalid_credentials: '用户名或密码错误。',
+            unauthorized: '请重新登录。',
+            invalid_token: '登录状态已失效，请重新登录。',
+            token_expired: '登录已过期，请重新登录。',
+            account_disabled: '该账户已停用。',
+            registration_disabled: '目前未开放注册。',
+            username_taken: '这个用户名已经被注册了。',
+            invalid_username: '用户名需要 2–32 个字符，只能使用字母、数字、_ 和 -。',
+            invalid_password: '密码需要 8–128 个字符。',
+            invalid_display_name: '昵称最多 64 个字符。',
+            wrong_password: '当前密码不正确。',
+            save_not_found: '没有找到这份存档，可能已经被删除。',
+            payload_too_large: '这份存档超出允许的大小。',
+            game_not_allowed: '这个游戏目前没有在该服务器上开放云存档。',
+            daily_limit_reached: '今天的云存档次数已经用完，明天 0 点会重置；升级等级可以提高每日次数。',
+            storage_quota_exceeded: '云存档空间已满，请删除一些旧存档，或提升等级来扩大空间。',
+            rate_limited: '操作太频繁，请稍后再试。',
+            not_found: '没有找到内容，请刷新后再试。',
+            revision_conflict: '存档刚刚有变化，请刷新后再试。',
+            internal_error: '服务暂时不可用，请稍后再试。',
+            missing_server: '请先填写服务地址。',
+        };
+
+        class ApiError extends Error {
+            constructor(status, code, message, extra = {}) {
+                super(message || code || 'api error');
+                this.name = 'ApiError';
+                this.status = status;
+                this.code = code;
+                this.extra = extra;
+            }
+        }
+
+        class NetworkError extends Error {
+            constructor(cause, kind = 'network') {
+                super(cause && cause.message ? cause.message : kind);
+                this.name = 'NetworkError';
+                this.cause = cause;
+                this.kind = kind;
+            }
+        }
+
+        const el = (id) => document.getElementById(id);
+
+        const ui = {
+            loginView: el('login-view'),
+            dashView: el('dash-view'),
+            authForm: el('auth-form'),
+            authTitle: el('auth-title'),
+            authSub: el('auth-sub'),
+            authSubmit: el('auth-submit'),
+            authError: el('auth-error'),
+            authSwitchLabel: el('auth-switch-label'),
+            authSwitchBtn: el('auth-switch-btn'),
+            usernameInput: el('username-input'),
+            passwordInput: el('password-input'),
+            togglePassword: el('toggle-password'),
+            rememberInput: el('remember-input'),
+            serverToggle: el('server-toggle'),
+            serverPanel: el('server-panel'),
+            serverCurrent: el('server-current'),
+            serverChange: el('server-change'),
+            serverInput: el('server-input'),
+            serverStatus: el('server-status'),
+            testBtn: el('test-btn'),
+            avatar: el('avatar'),
+            accountName: el('account-name'),
+            accountMeta: el('account-meta'),
+            settingsBtn: el('settings-btn'),
+            settingsModal: el('settings-modal'),
+            settingsClose: el('settings-close'),
+            settingsCurrentUsername: el('settings-current-username'),
+            renameForm: el('rename-form'),
+            renameInput: el('rename-input'),
+            renamePassword: el('rename-password'),
+            renameError: el('rename-error'),
+            renameSubmit: el('rename-submit'),
+            nicknameForm: el('nickname-form'),
+            nicknameInput: el('nickname-input'),
+            nicknameError: el('nickname-error'),
+            nicknameSubmit: el('nickname-submit'),
+            refreshBtn: el('refresh-btn'),
+            logoutBtn: el('logout-btn'),
+            sumSaves: el('sum-saves'),
+            sumSize: el('sum-size'),
+            sumQuota: el('sum-quota'),
+            sumUpdated: el('sum-updated'),
+            progressStrip: el('progress-strip'),
+            levelValue: el('level-value'),
+            xpCurrent: el('xp-current'),
+            xpNext: el('xp-next'),
+            xpTrack: el('xp-track'),
+            xpFill: el('xp-fill'),
+            dailyValue: el('daily-value'),
+            storageValue: el('storage-value'),
+            gamesCount: el('games-count'),
+            gameList: el('game-list'),
+            savesTitle: el('saves-title'),
+            savesSub: el('saves-sub'),
+            savesBody: el('saves-body'),
+            toast: el('toast'),
+        };
+
+        const state = {
+            baseUrl: '',
+            token: '',
+            account: null,
+            progress: null,
+            expiresAt: 0,
+            remember: true,
+            mode: 'login',
+            games: [],
+            gameData: new Map(),
+            selectedGame: null,
+            gamesLoading: false,
+            gamesError: null,
+        };
+
+        // ---------- 工具 ----------
+
+        function esc(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+            }[ch]));
+        }
+
+        function displayNameOf(account) {
+            if (!account) return '';
+            return account.display_name || account.username || '';
+        }
+
+        function prettyGameName(id) {
+            const parts = String(id || '').split(/[-_]+/).filter(Boolean);
+            if (!parts.length) return String(id || '');
+            return parts.map((word) => (
+                /^[a-z]/.test(word) ? word.charAt(0).toUpperCase() + word.slice(1) : word
+            )).join(' ');
+        }
+
+        function fmtBytes(n) {
+            n = Number(n);
+            if (!Number.isFinite(n) || n < 0) return '—';
+            if (n < 1024) return n + ' B';
+            const units = ['KB', 'MB', 'GB'];
+            let value = n / 1024;
+            let i = 0;
+            while (value >= 1024 && i < units.length - 1) { value /= 1024; i += 1; }
+            return value.toFixed(value >= 10 ? 0 : 1) + ' ' + units[i];
+        }
+
+        function fmtDate(ts) {
+            const seconds = Number(ts);
+            if (!seconds || !Number.isFinite(seconds)) return '—';
+            try {
+                return new Date(seconds * 1000).toLocaleString('zh-CN', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit',
+                });
+            } catch (_) {
+                return '—';
+            }
+        }
+
+        function relTime(ts) {
+            const seconds = Number(ts);
+            if (!seconds || !Number.isFinite(seconds)) return '—';
+            const diff = Math.max(0, Date.now() / 1000 - seconds);
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return Math.floor(diff / 60) + ' 分钟前';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' 小时前';
+            if (diff < 86400 * 30) return Math.floor(diff / 86400) + ' 天前';
+            return fmtDate(seconds);
+        }
+
+        // 与服务端保持同一套经验曲线：第 L 级需要 (L-1)^2 * 25 经验。
+        function xpForLevel(level) {
+            const safe = Math.max(1, Math.floor(level) || 1);
+            return (safe - 1) * (safe - 1) * 25;
+        }
+
+        function levelFromXP(xp) {
+            const value = Math.max(0, Number(xp) || 0);
+            let level = Math.floor(Math.sqrt(value / 25)) + 1;
+            while (level > 1 && xpForLevel(level) > value) level -= 1;
+            while (xpForLevel(level + 1) <= value) level += 1;
+            return level;
+        }
+
+        function setProgress(progress, options = {}) {
+            if (!progress) return;
+            const base = state.progress || {};
+            const pick = (key) => (progress[key] != null ? progress[key] : base[key]);
+            const xp = Math.max(0, Number(pick('xp')) || 0);
+            const level = levelFromXP(xp);
+            const previousLevel = base.level || 0;
+
+            state.progress = {
+                xp: xp,
+                level: level,
+                level_start_xp: xpForLevel(level),
+                next_level_xp: xpForLevel(level + 1),
+                daily_ops_used: Math.max(0, Number(pick('daily_ops_used')) || 0),
+                daily_ops_limit: Math.max(0, Number(pick('daily_ops_limit')) || 0),
+                daily_ops_reset_at: Number(pick('daily_ops_reset_at')) || 0,
+                storage_used_bytes: Math.max(0, Number(pick('storage_used_bytes')) || 0),
+                storage_quota_bytes: Math.max(0, Number(pick('storage_quota_bytes')) || 0),
+            };
+            saveSession();
+            renderProgress();
+
+            if (options.notify && previousLevel && level > previousLevel) {
+                showToast('升到 Lv.' + level, 'ok', '每日云存档次数和存储空间也提高了。');
+            }
+        }
+
+        // 下载响应头里带有最新经验和当日用量，顺手更新界面。
+        function updateProgressFromHeaders(res) {
+            const xp = res.headers.get('X-Account-XP');
+            const used = res.headers.get('X-Daily-Save-Used');
+            const limit = res.headers.get('X-Daily-Save-Limit');
+            if (xp == null && used == null && limit == null) return false;
+
+            const before = state.progress ? state.progress.level : 0;
+            const base = state.progress || {};
+            setProgress({
+                xp: xp != null ? Number(xp) : base.xp,
+                daily_ops_used: used != null ? Number(used) : base.daily_ops_used,
+                daily_ops_limit: limit != null ? Number(limit) : base.daily_ops_limit,
+            });
+            return !!(before && state.progress && state.progress.level > before);
+        }
+
+        function normalizeBase(raw) {
+            let value = String(raw || '').trim();
+            if (!value) return '';
+            if (!/^https?:\/\//i.test(value)) {
+                value = (location.protocol === 'https:' ? 'https://' : 'http://') + value;
+            }
+            return value.replace(/\/+$/, '');
+        }
+
+        function hostOf(base) {
+            if (!base) return '';
+            try {
+                return new URL(base).host;
+            } catch (_) {
+                return String(base).replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+            }
+        }
+
+        function safeFilename(slot) {
+            let name = String(slot || '').split('').filter((ch) => {
+                const code = ch.charCodeAt(0);
+                return code >= 32 && '\\/:*?"<>|'.indexOf(ch) === -1;
+            }).join('').trim();
+            if (!name) name = 'save';
+            return name + '.tres';
+        }
+
+        function skeleton(count, cls) {
+            let out = '';
+            for (let i = 0; i < count; i += 1) out += '<div class="skeleton ' + cls + '"></div>';
+            return out;
+        }
+
+        function setBusy(btn, busy, label) {
+            if (!btn) return;
+            if (busy) {
+                if (!btn.dataset.original) btn.dataset.original = btn.innerHTML;
+                btn.disabled = true;
+                btn.textContent = label || '处理中…';
+            } else {
+                btn.disabled = false;
+                if (btn.dataset.original) {
+                    btn.innerHTML = btn.dataset.original;
+                    delete btn.dataset.original;
+                }
+            }
+        }
+
+        function setServerStatus(text, kind) {
+            ui.serverStatus.textContent = text;
+            ui.serverStatus.className = 'hint' + (kind ? ' ' + kind : '');
+        }
+
+        function updateServerChangeLabel() {
+            const host = hostOf(ui.serverInput.value) || hostOf(localStorage.getItem(LS.server) || '');
+            ui.serverChange.textContent = ui.serverPanel.hidden ? (host ? '更改' : '填写') : '收起';
+        }
+
+        function updateServerQuiet(base) {
+            const host = hostOf(base);
+            ui.serverCurrent.textContent = host ? '服务 · ' + host : '还没有填写服务地址';
+            updateServerChangeLabel();
+        }
+
+        function openServerPanel(open, focus = true) {
+            ui.serverPanel.hidden = !open;
+            ui.serverToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            updateServerChangeLabel();
+            if (open && focus) ui.serverInput.focus();
+        }
+
+        // ---------- 网络 ----------
+
+        function assertNoMixedContent(base) {
+            if (location.protocol === 'https:' && /^http:\/\//i.test(base)) {
+                throw new NetworkError(null, 'mixed');
+            }
+        }
+
+        async function request(path, opts = {}) {
+            const {
+                method = 'GET',
+                json,
+                rawBody,
+                headers = {},
+                timeout = 15000,
+                auth = true,
+                raw = false,
+            } = opts;
+
+            const base = state.baseUrl;
+            if (!base) throw new ApiError(0, 'missing_server', '请先填写服务地址');
+            assertNoMixedContent(base);
+
+            const requestHeaders = new Headers(headers);
+            if (auth && state.token) requestHeaders.set('Authorization', 'Bearer ' + state.token);
+            let body = rawBody;
+            if (json !== undefined) {
+                requestHeaders.set('Content-Type', 'application/json');
+                body = JSON.stringify(json);
+            }
+
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeout);
+            let res;
+            try {
+                res = await fetch(base + path, {
+                    method,
+                    headers: requestHeaders,
+                    body,
+                    signal: controller.signal,
+                    cache: 'no-store',
+                });
+            } catch (err) {
+                throw new NetworkError(err);
+            } finally {
+                clearTimeout(timer);
+            }
+
+            if (!res.ok) {
+                const contentType = res.headers.get('Content-Type') || '';
+                let data = null;
+                if (contentType.includes('application/json')) {
+                    try { data = await res.json(); } catch (_) { data = null; }
+                }
+                const code = (data && data.error) || ('http_' + res.status);
+                const message = (data && data.message) || res.statusText || '';
+                const retry = Number(res.headers.get('Retry-After') || 0);
+                throw new ApiError(res.status, code, message, { retry, data });
+            }
+
+            if (raw) return { res, bytes: new Uint8Array(await res.arrayBuffer()) };
+            if (res.status === 204) return { res, data: null };
+
+            const contentType = res.headers.get('Content-Type') || '';
+            if (contentType.includes('application/json')) return { res, data: await res.json() };
+            return { res, data: await res.text() };
+        }
+
+        function isSessionError(err) {
+            if (!(err instanceof ApiError)) return false;
+            return err.code === 'invalid_token'
+                || err.code === 'token_expired'
+                || err.code === 'unauthorized'
+                || err.code === 'account_disabled';
+        }
+
+        function describeError(err) {
+            if (err instanceof NetworkError) {
+                return {
+                    title: '无法连接',
+                    message: err.kind === 'mixed'
+                        ? '这个地址暂时无法打开，请检查服务地址是否填写正确。'
+                        : '请检查网络连接后重试。',
+                    hints: [],
+                };
+            }
+            if (err instanceof ApiError) {
+                let title = '请求失败';
+                let message = ERROR_TEXT[err.code] || '请稍后重试。';
+                if (err.code === 'rate_limited') {
+                    const retry = Math.max(1, Number(err.extra && err.extra.retry) || 1);
+                    message = '操作太频繁，请在 ' + retry + ' 秒后重试。';
+                }
+                if (err.code === 'daily_limit_reached') {
+                    title = '今日次数已用完';
+                    const resetAt = state.progress && state.progress.daily_ops_reset_at;
+                    if (resetAt && resetAt * 1000 > Date.now()) {
+                        message = '今天的云存档次数已经用完，将在 ' + fmtDate(resetAt)
+                            + ' 重置。升级等级可以提高每日次数。';
+                    }
+                }
+                if (err.code === 'storage_quota_exceeded') title = '空间不足';
+                if (err.code === 'game_not_allowed') title = '暂未开放';
+                return { title, message, hints: [] };
+            }
+            return {
+                title: '出现问题了',
+                message: '请稍后重试。',
+                hints: [],
+            };
+        }
+
+        // ---------- 会话 ----------
+
+        function saveSession() {
+            localStorage.setItem(LS.server, state.baseUrl);
+            localStorage.setItem(LS.remember, state.remember ? '1' : '0');
+            const store = state.remember ? localStorage : sessionStorage;
+            const other = state.remember ? sessionStorage : localStorage;
+            store.setItem(LS.token, state.token);
+            store.setItem(LS.account, JSON.stringify(state.account || null));
+            store.setItem(LS.progress, JSON.stringify(state.progress || null));
+            store.setItem(LS.expires, String(state.expiresAt || 0));
+            [LS.token, LS.account, LS.progress, LS.expires].forEach((key) => other.removeItem(key));
+        }
+
+        function clearSession() {
+            [localStorage, sessionStorage].forEach((store) => {
+                [LS.token, LS.account, LS.progress, LS.expires].forEach((key) => store.removeItem(key));
+            });
+        }
+
+        function resetDashboardState() {
+            state.games = [];
+            state.gameData.clear();
+            state.selectedGame = null;
+            state.gamesLoading = false;
+            state.gamesError = null;
+        }
+
+        function expireSession(err) {
+            if (!state.token) return;
+            const desc = describeError(err);
+            if (err instanceof ApiError) {
+                if (err.code === 'account_disabled') desc.title = '账户已被禁用';
+                else desc.title = '登录已失效';
+            }
+            closeSettings();
+            clearSession();
+            state.token = '';
+            state.account = null;
+            state.progress = null;
+            state.expiresAt = 0;
+            resetDashboardState();
+            renderProgress();
+            showLogin();
+            showAuthError(desc);
+        }
+
+        // ---------- 视图 ----------
+
+        function showLogin() {
+            ui.loginView.hidden = false;
+            ui.dashView.hidden = true;
+            ui.passwordInput.type = 'password';
+            ui.togglePassword.textContent = '显示';
+            ui.togglePassword.setAttribute('aria-label', '显示密码');
+            clearAuthError();
+            setMode('login');
+            updateServerQuiet(localStorage.getItem(LS.server) || '');
+        }
+
+        function showDashboard() {
+            ui.loginView.hidden = true;
+            ui.dashView.hidden = false;
+            renderAccount();
+            renderProgress();
+        }
+
+        function setMode(mode) {
+            state.mode = mode;
+            const registering = mode === 'register';
+            ui.authTitle.textContent = registering ? '注册' : '登录';
+            ui.authSub.textContent = registering
+                ? '创建一个 FuncRange 账户，显示名称默认使用用户名。'
+                : '使用你的 FuncRange 账户。';
+            ui.authSubmit.textContent = registering ? '注册并登录' : '登录';
+            ui.authSwitchLabel.textContent = registering ? '已经有账户？' : '还没有账户？';
+            ui.authSwitchBtn.textContent = registering ? '去登录' : '注册一个';
+            ui.passwordInput.autocomplete = registering ? 'new-password' : 'current-password';
+            clearAuthError();
+        }
+
+        function showAuthError(input) {
+            const desc = input && input.title ? input : describeError(input);
+            const hints = Array.isArray(desc.hints) ? desc.hints.filter(Boolean) : [];
+            ui.authError.innerHTML = '<strong>' + esc(desc.title) + '</strong><p>' + esc(desc.message) + '</p>'
+                + (hints.length ? '<ul>' + hints.map((hint) => '<li>' + esc(hint) + '</li>').join('') + '</ul>' : '');
+            ui.authError.hidden = false;
+        }
+
+        function showAuthMessage(title, message) {
+            ui.authError.innerHTML = '<strong>' + esc(title) + '</strong>' + (message ? '<p>' + esc(message) + '</p>' : '');
+            ui.authError.hidden = false;
+        }
+
+        function clearAuthError() {
+            ui.authError.hidden = true;
+            ui.authError.innerHTML = '';
+        }
+
+        let toastTimer = null;
+        function showToast(title, kind, message) {
+            ui.toast.className = 'toast' + (kind === 'error' ? ' error' : '');
+            ui.toast.innerHTML = '<strong>' + esc(title) + '</strong>'
+                + (message ? '<span>' + esc(message) + '</span>' : '');
+            ui.toast.hidden = false;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { ui.toast.hidden = true; }, 4200);
+        }
+
+        function renderAccount() {
+            const account = state.account;
+            if (!account) {
+                ui.accountName.textContent = '正在验证登录…';
+                ui.accountMeta.textContent = '正在读取存档…';
+                ui.avatar.textContent = '·';
+                return;
+            }
+            const name = displayNameOf(account) || '—';
+            ui.accountName.textContent = name;
+            ui.avatar.textContent = Array.from(name)[0] || '?';
+            const level = state.progress ? ' · Lv.' + state.progress.level : '';
+            ui.accountMeta.textContent = (account.username ? '@' + account.username : '') + level;
+        }
+
+        function renderProgress() {
+            const p = state.progress;
+            if (!p) {
+                ui.progressStrip.hidden = true;
+                ui.sumQuota.textContent = '—';
+                return;
+            }
+
+            ui.progressStrip.hidden = false;
+            ui.levelValue.textContent = 'Lv.' + p.level;
+
+            const span = Math.max(1, p.next_level_xp - p.level_start_xp);
+            const ratio = Math.max(0, Math.min(1, (p.xp - p.level_start_xp) / span));
+            ui.xpCurrent.textContent = p.xp + ' XP';
+            ui.xpNext.textContent = '距 Lv.' + (p.level + 1) + ' 还差 '
+                + Math.max(0, p.next_level_xp - p.xp) + ' XP';
+            ui.xpFill.style.width = (ratio * 100).toFixed(1) + '%';
+            ui.xpTrack.setAttribute('aria-valuenow', String(Math.round(ratio * 100)));
+
+            // 跨过服务端的重置时间后，旧缓存里的今日用量不再可信。
+            const resetPassed = p.daily_ops_reset_at > 0 && Date.now() / 1000 >= p.daily_ops_reset_at;
+            const used = resetPassed ? 0 : p.daily_ops_used;
+            ui.dailyValue.textContent = used + ' / ' + (p.daily_ops_limit || '—');
+            ui.dailyValue.classList.toggle('warn', p.daily_ops_limit > 0 && used >= p.daily_ops_limit);
+
+            ui.storageValue.textContent = fmtBytes(p.storage_used_bytes) + ' / ' + fmtBytes(p.storage_quota_bytes);
+            ui.storageValue.classList.toggle('warn',
+                p.storage_quota_bytes > 0 && p.storage_used_bytes >= p.storage_quota_bytes * 0.9);
+            ui.sumQuota.textContent = fmtBytes(p.storage_quota_bytes);
+        }
+
+        // ---------- 账户设置 ----------
+
+        function showFormError(node, err) {
+            const desc = err && err.title ? err : describeError(err);
+            node.innerHTML = '<strong>' + esc(desc.title) + '</strong>'
+                + (desc.message ? '<p>' + esc(desc.message) + '</p>' : '');
+            node.hidden = false;
+        }
+
+        function clearFormError(node) {
+            node.hidden = true;
+            node.innerHTML = '';
+        }
+
+        function openSettings() {
+            if (!state.account) return;
+            ui.settingsCurrentUsername.textContent = '@' + (state.account.username || '');
+            ui.renameInput.value = state.account.username || '';
+            ui.renamePassword.value = '';
+            ui.nicknameInput.value = state.account.display_name || '';
+            clearFormError(ui.renameError);
+            clearFormError(ui.nicknameError);
+            ui.settingsModal.hidden = false;
+            document.body.style.overflow = 'hidden';
+            ui.renameInput.focus();
+            ui.renameInput.select();
+        }
+
+        function closeSettings() {
+            if (ui.settingsModal.hidden) return;
+            ui.settingsModal.hidden = true;
+            document.body.style.overflow = '';
+        }
+
+        // ---------- 数据 ----------
+
+        async function loadGames() {
+            state.gamesLoading = true;
+            state.gamesError = null;
+            renderGameList();
+            renderSummary();
+
+            try {
+                const { data } = await request('/api/v1/games');
+                const games = Array.isArray(data && data.games) ? data.games.slice() : [];
+                games.sort((a, b) => (Number(b.updated_at) || 0) - (Number(a.updated_at) || 0));
+
+                state.games = games;
+                state.gameData.clear();
+                for (const game of games) {
+                    state.gameData.set(game.game, { loading: true, saves: [], error: null });
+                }
+                if (!state.selectedGame || !games.some((game) => game.game === state.selectedGame)) {
+                    state.selectedGame = games.length ? games[0].game : null;
+                }
+
+                renderGameList();
+                renderSummary();
+                renderSaves();
+
+                await Promise.allSettled(games.map((game) => fetchSavesFor(game.game)));
+                if (!state.token) return;
+
+                renderGameList();
+                renderSummary();
+                renderSaves();
+            } catch (err) {
+                if (isSessionError(err)) { expireSession(err); return; }
+                state.games = [];
+                state.gameData.clear();
+                state.selectedGame = null;
+                state.gamesError = err;
+                renderGameList();
+                renderSummary();
+                renderSaves();
+                const desc = describeError(err);
+                showToast(desc.title, 'error', desc.message);
+            } finally {
+                state.gamesLoading = false;
+                if (state.token) {
+                    renderGameList();
+                    renderSummary();
+                    renderSaves();
+                }
+            }
+        }
+
+        async function fetchSavesFor(game) {
+            const previous = state.gameData.get(game);
+            state.gameData.set(game, {
+                loading: true,
+                saves: previous ? previous.saves : [],
+                error: null,
+            });
+
+            try {
+                const { data } = await request('/api/v1/games/' + encodeURIComponent(game) + '/saves');
+                const saves = Array.isArray(data && data.saves) ? data.saves.slice() : [];
+                saves.sort((a, b) => (Number(b.updated_at) || 0) - (Number(a.updated_at) || 0));
+                state.gameData.set(game, { loading: false, saves: saves, error: null });
+            } catch (err) {
+                state.gameData.set(game, {
+                    loading: false,
+                    saves: previous ? previous.saves : [],
+                    error: err,
+                });
+                if (isSessionError(err)) expireSession(err);
+            }
+        }
+
+        async function refreshAll() {
+            if (!state.token) return;
+            setBusy(ui.refreshBtn, true, '刷新中…');
+            try {
+                const { data } = await request('/api/v1/me');
+                state.account = data.account;
+                setProgress(data.progress, { notify: true });
+                saveSession();
+                renderAccount();
+                await loadGames();
+                if (!state.token) return;
+                showToast('已刷新');
+            } catch (err) {
+                if (isSessionError(err)) { expireSession(err); return; }
+                const desc = describeError(err);
+                showToast(desc.title, 'error', desc.message);
+            } finally {
+                setBusy(ui.refreshBtn, false);
+            }
+        }
+
+        // ---------- 渲染 ----------
+
+        function renderGameList() {
+            ui.gamesCount.textContent = String(state.games.length);
+
+            if (state.gamesLoading && state.games.length === 0) {
+                ui.gameList.innerHTML = skeleton(4, 'game-skeleton');
+                return;
+            }
+            if (state.gamesError) {
+                const desc = describeError(state.gamesError);
+                ui.gameList.innerHTML = '<div class="empty small">' + esc(desc.title)
+                    + '<br><span>' + esc(desc.message) + '</span></div>';
+                return;
+            }
+            if (state.games.length === 0) {
+                ui.gameList.innerHTML = '<div class="empty small">还没有玩过的游戏<br><span>在游戏中上传存档后，这里会出现。</span></div>';
+                return;
+            }
+
+            ui.gameList.innerHTML = state.games.map((game) => {
+                const active = game.game === state.selectedGame;
+                const entry = state.gameData.get(game.game);
+                const count = Number(game.save_count) || 0;
+                return '<button type="button" class="game-item' + (active ? ' active' : '') + '"'
+                    + ' data-game="' + esc(game.game) + '"'
+                    + (active ? ' aria-current="true"' : '') + '>'
+                    + '<span class="game-name">' + esc(prettyGameName(game.game)) + '</span>'
+                    + '<span class="game-meta">' + count + ' 份存档 · ' + esc(relTime(game.updated_at)) + '</span>'
+                    + (entry && entry.error ? '<span class="game-warn">加载失败</span>' : '')
+                    + '</button>';
+            }).join('');
+        }
+
+        function renderSummary() {
+            const games = state.games;
+            let declaredSaves = 0;
+            let bytes = 0;
+            let newest = 0;
+            let savesKnown = true;
+
+            for (const game of games) {
+                declaredSaves += Number(game.save_count) || 0;
+                const entry = state.gameData.get(game.game);
+                if (!entry || entry.loading || entry.error) { savesKnown = false; continue; }
+                for (const save of entry.saves) {
+                    bytes += Number(save.size) || 0;
+                    newest = Math.max(newest, Number(save.updated_at) || 0);
+                }
+            }
+
+            const failed = !!state.gamesError;
+            const initialLoad = state.gamesLoading && games.length === 0;
+            ui.sumSaves.textContent = initialLoad ? '…' : (failed ? '—' : String(declaredSaves));
+            if (state.progress) {
+                ui.sumSize.textContent = fmtBytes(state.progress.storage_used_bytes);
+            } else if (initialLoad) {
+                ui.sumSize.textContent = '…';
+            } else if (failed) {
+                ui.sumSize.textContent = '—';
+            } else {
+                ui.sumSize.textContent = savesKnown ? fmtBytes(bytes) : (state.gamesLoading ? '…' : '—');
+            }
+            ui.sumUpdated.textContent = newest
+                ? relTime(newest)
+                : (initialLoad ? '…' : '—');
+            renderProgress();
+        }
+
+        function renderSaves() {
+            const game = state.selectedGame;
+            if (!game) {
+                ui.savesTitle.textContent = '选择一个游戏';
+                ui.savesSub.textContent = '查看这个游戏的云存档。';
+                ui.savesBody.innerHTML = '<div class="empty">'
+                    + (state.gamesLoading ? '正在读取…' : (state.gamesError ? '暂时无法读取，请稍后重试。' : '这里还没有游戏。'))
+                    + '</div>';
+                return;
+            }
+
+            ui.savesTitle.textContent = prettyGameName(game);
+
+            const entry = state.gameData.get(game);
+            if (!entry || entry.loading) {
+                ui.savesSub.textContent = '正在读取…';
+                ui.savesBody.innerHTML = '<div class="save-grid">' + skeleton(2, 'save-skeleton') + '</div>';
+                return;
+            }
+            if (entry.error) {
+                const desc = describeError(entry.error);
+                ui.savesSub.textContent = '读取失败';
+                ui.savesBody.innerHTML = '<div class="inline-error"><strong>' + esc(desc.title) + '</strong>'
+                    + '<p>' + esc(desc.message) + '</p>'
+                    + '<button type="button" class="button ghost small" data-action="retry-saves">重试</button></div>';
+                return;
+            }
+
+            const saves = entry.saves;
+            ui.savesSub.textContent = saves.length + ' 份存档';
+            if (saves.length === 0) {
+                ui.savesBody.innerHTML = '<div class="empty">这个游戏还没有云存档<br><span>在游戏中保存并上传后会出现在这里。</span></div>';
+                return;
+            }
+            ui.savesBody.innerHTML = '<div class="save-grid">' + saves.map(saveCard).join('') + '</div>';
+        }
+
+        function saveCard(save) {
+            const slot = String(save.slot || '');
+            const title = esc(slot);
+            const meta = esc(relTime(save.updated_at)) + ' · ' + fmtBytes(save.size);
+            return '<article class="save-card" data-slot="' + esc(slot) + '">'
+                + '<h3 title="' + title + '">' + title + '</h3>'
+                + '<p class="save-card-meta">' + meta + '</p>'
+                + '<div class="save-card-actions">'
+                +   '<button type="button" class="button small" data-action="download">下载</button>'
+                + '</div>'
+                + '</article>';
+        }
+
+        // ---------- 存档操作 ----------
+
+        async function fetchSaveBytes(game, slot) {
+            const { res, bytes } = await request(
+                '/api/v1/games/' + encodeURIComponent(game) + '/saves/' + encodeURIComponent(slot),
+                { raw: true, timeout: 60000 }
+            );
+            const levelUp = updateProgressFromHeaders(res);
+            renderAccount();
+            return { bytes, levelUp };
+        }
+
+        async function downloadSave(game, slot, btn) {
+            setBusy(btn, true, '下载中…');
+            try {
+                const { bytes, levelUp } = await fetchSaveBytes(game, slot);
+                const blob = new Blob([bytes], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                const filename = safeFilename(slot);
+                anchor.href = url;
+                anchor.download = filename;
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                showToast(levelUp ? '已下载 · 升到 Lv.' + state.progress.level : '已下载', 'ok', slot);
+            } catch (err) {
+                if (isSessionError(err)) { expireSession(err); return; }
+                const desc = describeError(err);
+                showToast(desc.title, 'error', desc.message);
+            } finally {
+                setBusy(btn, false);
+            }
+        }
+
+        // ---------- 事件 ----------
+
+        ui.authForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearAuthError();
+
+            const base = normalizeBase(ui.serverInput.value);
+            const username = ui.usernameInput.value.trim();
+            const password = ui.passwordInput.value;
+
+            if (!base) {
+                openServerPanel(true);
+                showAuthMessage('请先填写服务地址', '在下方填写我们提供的服务地址。');
+                return;
+            }
+            if (!username) { showAuthMessage('请填写用户名'); return; }
+            if (!password) { showAuthMessage('请填写密码'); return; }
+
+            ui.serverInput.value = base;
+            state.baseUrl = base;
+            const remember = ui.rememberInput.checked;
+            const registering = state.mode === 'register';
+
+            setBusy(ui.authSubmit, true, registering ? '注册中…' : '登录中…');
+            ui.serverInput.disabled = true;
+
+            try {
+                if (registering) {
+                    await request('/api/v1/auth/register', {
+                        method: 'POST',
+                        auth: false,
+                        json: { username: username, password: password },
+                    });
+                }
+
+                const { data } = await request('/api/v1/auth/login', {
+                    method: 'POST',
+                    auth: false,
+                    json: { username: username, password: password },
+                });
+
+                state.token = data.token;
+                state.account = data.account;
+                state.progress = null;
+                state.expiresAt = Number(data.expires_at) || 0;
+                state.remember = remember;
+                setProgress(data.progress);
+                saveSession();
+
+                localStorage.setItem(LS.server, base);
+                updateServerQuiet(base);
+                openServerPanel(false);
+                ui.passwordInput.value = '';
+
+                resetDashboardState();
+                showDashboard();
+                showToast('欢迎回来，' + (displayNameOf(state.account) || username));
+                await loadGames();
+            } catch (err) {
+                const desc = describeError(err);
+                desc.title = registering ? '注册失败' : '登录失败';
+                showAuthError(desc);
+                if (err instanceof NetworkError || (err instanceof ApiError && err.status === 0)) {
+                    openServerPanel(true);
+                }
+            } finally {
+                setBusy(ui.authSubmit, false);
+                ui.serverInput.disabled = false;
+            }
+        });
+
+        ui.serverToggle.addEventListener('click', () => {
+            openServerPanel(ui.serverPanel.hidden);
+        });
+
+        ui.serverInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                ui.testBtn.click();
+            }
+        });
+
+        ui.testBtn.addEventListener('click', async () => {
+            const base = normalizeBase(ui.serverInput.value);
+            if (!base) { setServerStatus('请先填写服务地址。', 'bad'); return; }
+
+            const previousBase = state.baseUrl;
+            const previousToken = state.token;
+            state.baseUrl = base;
+            state.token = '';
+            setBusy(ui.testBtn, true, '连接中…');
+            setServerStatus('正在连接…', 'busy');
+
+            try {
+                const { data } = await request('/health', { auth: false, timeout: 10000 });
+                if (!data || data.status !== 'ok') throw new Error('unexpected response');
+                setServerStatus('连接成功。', 'ok');
+                localStorage.setItem(LS.server, base);
+                updateServerQuiet(base);
+            } catch (err) {
+                setServerStatus('连接失败，请检查地址或网络。', 'bad');
+            } finally {
+                state.baseUrl = previousBase;
+                state.token = previousToken;
+                setBusy(ui.testBtn, false);
+            }
+        });
+
+        ui.togglePassword.addEventListener('click', () => {
+            const showing = ui.passwordInput.type === 'text';
+            ui.passwordInput.type = showing ? 'password' : 'text';
+            ui.togglePassword.textContent = showing ? '显示' : '隐藏';
+            ui.togglePassword.setAttribute('aria-label', showing ? '显示密码' : '隐藏密码');
+        });
+
+        ui.authSwitchBtn.addEventListener('click', () => {
+            setMode(state.mode === 'register' ? 'login' : 'register');
+            ui.usernameInput.focus();
+        });
+
+        ui.settingsBtn.addEventListener('click', openSettings);
+        ui.settingsClose.addEventListener('click', closeSettings);
+        ui.settingsModal.addEventListener('click', (event) => {
+            if (event.target.dataset.close === 'settings') closeSettings();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !ui.settingsModal.hidden) closeSettings();
+        });
+
+        ui.renameForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearFormError(ui.renameError);
+            if (!state.account) return;
+
+            const username = ui.renameInput.value.trim();
+            const password = ui.renamePassword.value;
+            if (!username) {
+                showFormError(ui.renameError, { title: '请填写用户名', message: '用户名需要 2–32 个字符。' });
+                return;
+            }
+            if (!password) {
+                showFormError(ui.renameError, { title: '请输入当前密码', message: '修改登录用户名需要验证当前密码。' });
+                return;
+            }
+            if (username === state.account.username) {
+                showFormError(ui.renameError, { title: '用户名没有变化', message: '输入新的用户名后再保存。' });
+                return;
+            }
+
+            setBusy(ui.renameSubmit, true, '保存中…');
+            try {
+                const { data } = await request('/api/v1/me/username', {
+                    method: 'POST',
+                    json: { username, password },
+                });
+                state.account = data.account || { ...state.account, username };
+                setProgress(data.progress);
+                saveSession();
+                renderAccount();
+                ui.settingsCurrentUsername.textContent = '@' + (state.account.username || '');
+                ui.renameInput.value = state.account.username || '';
+                ui.renamePassword.value = '';
+                ui.nicknameInput.value = state.account.display_name || '';
+                showToast('用户名已更新', 'ok', '下次登录请使用新用户名');
+            } catch (err) {
+                if (isSessionError(err)) { closeSettings(); expireSession(err); return; }
+                showFormError(ui.renameError, err);
+            } finally {
+                setBusy(ui.renameSubmit, false);
+            }
+        });
+
+        ui.nicknameForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearFormError(ui.nicknameError);
+            if (!state.account) return;
+
+            const displayName = ui.nicknameInput.value.trim();
+            setBusy(ui.nicknameSubmit, true, '保存中…');
+            try {
+                const { data } = await request('/api/v1/me/display-name', {
+                    method: 'POST',
+                    json: { display_name: displayName },
+                });
+                state.account = data.account || {
+                    ...state.account,
+                    display_name: displayName || state.account.username,
+                };
+                setProgress(data.progress);
+                saveSession();
+                renderAccount();
+                ui.nicknameInput.value = state.account.display_name || '';
+                showToast('昵称已更新', 'ok');
+            } catch (err) {
+                if (isSessionError(err)) { closeSettings(); expireSession(err); return; }
+                showFormError(ui.nicknameError, err);
+            } finally {
+                setBusy(ui.nicknameSubmit, false);
+            }
+        });
+
+        ui.gameList.addEventListener('click', (event) => {
+            const item = event.target.closest('.game-item');
+            if (!item) return;
+            const game = item.dataset.game;
+            if (!game || game === state.selectedGame) return;
+            state.selectedGame = game;
+            renderGameList();
+            renderSaves();
+        });
+
+        ui.savesBody.addEventListener('click', async (event) => {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+            const action = button.dataset.action;
+            const game = state.selectedGame;
+            if (!game) return;
+
+            if (action === 'retry-saves') {
+                setBusy(button, true, '重试中…');
+                await fetchSavesFor(game);
+                renderGameList();
+                renderSummary();
+                renderSaves();
+                return;
+            }
+
+            if (action !== 'download') return;
+            const card = button.closest('.save-card');
+            if (!card) return;
+            const slot = card.dataset.slot || '';
+
+            downloadSave(game, slot, button);
+        });
+
+        ui.refreshBtn.addEventListener('click', refreshAll);
+
+        ui.logoutBtn.addEventListener('click', async () => {
+            if (state.token) {
+                try {
+                    await request('/api/v1/auth/logout', { method: 'POST', timeout: 8000 });
+                } catch (_) { /* 登录状态可能已失效，忽略 */ }
+            }
+            closeSettings();
+            clearSession();
+            state.token = '';
+            state.account = null;
+            state.progress = null;
+            state.expiresAt = 0;
+            resetDashboardState();
+            renderProgress();
+            showLogin();
+            setServerStatus('');
+            showToast('已退出登录');
+        });
+
+        // ---------- 启动 ----------
+
+        async function resumeSession() {
+            setBusy(ui.refreshBtn, true, '刷新中…');
+            try {
+                const { data } = await request('/api/v1/me');
+                state.account = data.account;
+                setProgress(data.progress);
+                saveSession();
+                renderAccount();
+                await loadGames();
+            } catch (err) {
+                if (isSessionError(err)) { expireSession(err); return; }
+                const desc = describeError(err);
+                state.gamesError = err;
+                renderAccount();
+                renderGameList();
+                renderSummary();
+                renderSaves();
+                showToast(desc.title, 'error', desc.message);
+            } finally {
+                setBusy(ui.refreshBtn, false);
+            }
+        }
+
+        function init() {
+            const savedBase = localStorage.getItem(LS.server) || '';
+            if (savedBase) ui.serverInput.value = savedBase;
+            updateServerQuiet(savedBase);
+            if (!savedBase) openServerPanel(true, false);
+
+            const remember = localStorage.getItem(LS.remember) !== '0';
+            ui.rememberInput.checked = remember;
+
+            const token = localStorage.getItem(LS.token) || sessionStorage.getItem(LS.token) || '';
+            if (!savedBase || !token) {
+                showLogin();
+                return;
+            }
+
+            const fromLocal = !!localStorage.getItem(LS.token);
+            const store = fromLocal ? localStorage : sessionStorage;
+            let account = null;
+            try { account = JSON.parse(store.getItem(LS.account) || 'null'); } catch (_) { account = null; }
+            let progress = null;
+            try { progress = JSON.parse(store.getItem(LS.progress) || 'null'); } catch (_) { progress = null; }
+
+            state.baseUrl = normalizeBase(savedBase);
+            state.token = token;
+            state.account = account;
+            state.progress = progress;
+            state.expiresAt = Number(store.getItem(LS.expires) || 0) || 0;
+            state.remember = fromLocal;
+
+            showDashboard();
+            resumeSession();
+        }
+
+        init();
+    })();
+    </script>
+</body>
+</html>

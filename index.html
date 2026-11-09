@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FuncRange 游戏开发工作室，制作有想法、有温度、值得反复游玩的游戏。">
+    <meta name="description" content="FuncRange 云存档：登录账户，查看玩过的游戏与云存档，一键下载到本地。">
     <link rel="icon" type="image/png" href="image/FuncRangeLogo.png">
     <link rel="apple-touch-icon" href="image/FuncRangeLogo.png">
-    <title>创意区间工作室</title>
+    <title>云存档 · 创意区间工作室</title>
     <style>
         :root {
             --ink: #f5f4ee;
@@ -24,13 +24,17 @@
         html { scroll-behavior: smooth; }
         body {
             margin: 0;
-            background: var(--paper);
+            background:
+                radial-gradient(900px 520px at 88% -140px, rgba(255, 242, 0, .07), transparent 65%),
+                var(--paper);
             color: var(--ink);
             font-family: var(--sans);
             line-height: 1.5;
         }
         a { color: inherit; text-decoration: none; }
+        :focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
         .wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+
         .topbar {
             display: flex; justify-content: space-between; align-items: center;
             padding: 25px 0; border-bottom: 1px solid var(--line);
@@ -38,65 +42,114 @@
         .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .04em; }
         .brand-logo { width: 56px; height: 36px; object-fit: contain; object-position: center; }
         .brand-name { color: var(--yellow); }
-        nav { display: flex; gap: 30px; font-size: 14px; color: var(--muted); }
-        nav a:hover, footer a:hover { color: var(--yellow); }
-        .hero { min-height: 690px; display: grid; grid-template-columns: 1.08fr .92fr; gap: 70px; align-items: center; padding: 70px 0 100px; }
+        .topbar nav { display: flex; flex-wrap: wrap; align-items: center; gap: 28px; font-size: 14px; color: var(--muted); }
+        .topbar nav a:hover { color: var(--yellow); }
+        .topbar nav .nav-cta { padding: 7px 11px; background: var(--yellow); color: #0a0b0d; font-weight: 700; }
+        .topbar nav .nav-cta:hover { background: var(--amber); color: #0a0b0d; }
+
         .eyebrow { color: var(--yellow); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-        h1 { max-width: 700px; margin: 16px 0 25px; font-family: var(--display); font-size: clamp(54px, 8vw, 106px); font-weight: 400; letter-spacing: .01em; line-height: .94; text-transform: uppercase; }
-        h1 em { color: var(--yellow); font-style: normal; }
-        .hero-copy { max-width: 470px; margin: 0 0 32px; color: var(--muted); font-size: 18px; }
-        .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
-        .button { display: inline-flex; align-items: center; gap: 10px; padding: 14px 20px; background: var(--yellow); color: #0a0b0d; font-size: 14px; font-weight: 700; border: 1px solid var(--yellow); transition: transform .2s, background .2s; }
+
+        .hero {
+            display: grid; grid-template-columns: 1.05fr .95fr; gap: 70px;
+            align-items: center; min-height: 640px; padding: 70px 0 90px;
+        }
+        .hero h1 {
+            margin: 16px 0 24px; font-family: var(--display); font-weight: 400;
+            font-size: clamp(58px, 8vw, 104px); letter-spacing: .01em; line-height: .93;
+        }
+        .hero h1 em { color: var(--yellow); font-style: normal; }
+        .hero-copy { max-width: 480px; margin: 0 0 30px; color: var(--muted); font-size: 17px; }
+        .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+        .button {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 14px 20px; background: var(--yellow); border: 1px solid var(--yellow);
+            color: #0a0b0d; font-size: 14px; font-weight: 700;
+            transition: transform .2s, background .2s, border-color .2s;
+        }
         .button:hover { background: var(--amber); border-color: var(--amber); transform: translateY(-3px); }
         .text-link { border-bottom: 1px solid var(--ink); padding-bottom: 4px; font-size: 14px; }
-        .hero-art { position: relative; min-height: 430px; background: #202328; overflow: hidden; display: grid; place-items: center; }
+        .text-link:hover { color: var(--yellow); border-color: var(--yellow); }
+        .hero-note { margin: 22px 0 0; color: #777a73; font-size: 12px; }
+
+        .hero-art {
+            position: relative; min-height: 430px; background: #202328; overflow: hidden;
+            display: grid; place-items: center; border: 1px solid var(--line);
+        }
         .hero-art::before { content: ""; position: absolute; inset: 22px; border: 1px solid rgba(255, 242, 0, .45); }
-        .hero-art::after { content: "PLAY / CREATE / REPEAT"; position: absolute; right: 28px; bottom: 22px; color: var(--yellow); font-size: 11px; font-weight: 700; letter-spacing: .1em; }
-        .hero-logo { position: relative; z-index: 1; width: min(82%, 380px); filter: drop-shadow(12px 14px 0 rgba(10, 11, 13, .8)); }
-        .art-note { position: absolute; z-index: 2; left: 28px; top: 28px; width: 130px; color: var(--yellow); font-size: 12px; font-weight: 700; line-height: 1.25; }
-        section { padding: 95px 0; border-top: 1px solid var(--line); }
-        .section-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 42px; }
-        h2 { margin: 0; font-family: var(--display); font-size: clamp(40px, 6vw, 70px); font-weight: 400; letter-spacing: .01em; line-height: .95; text-transform: uppercase; }
-        .section-heading p { max-width: 270px; margin: 0; color: var(--muted); font-size: 14px; }
-        .projects { display: grid; grid-template-columns: 1.25fr .75fr; gap: 20px; }
-        .project { min-height: 300px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; }
-        .project-main { min-height: 450px; background: var(--panel); }
-        .project-side { background: #22252b; }
-        .project:nth-child(3) { background: #303117; grid-column: span 2; min-height: 240px; }
-        .project-visual { align-self: center; width: min(75%, 440px); height: 160px; border: 1px solid var(--yellow); color: var(--yellow); display: grid; place-items: center; font-family: var(--display); font-size: 44px; letter-spacing: .03em; }
-        .project-side .project-visual { width: 160px; height: 160px; border: 12px solid var(--yellow); transform: rotate(12deg); }
-        .project-meta { display: flex; justify-content: space-between; gap: 20px; font-size: 13px; }
-        .project-meta span:last-child { color: var(--muted); }
-        .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); }
-        .service { padding: 25px 22px 0 0; border-right: 1px solid var(--line); min-height: 170px; }
-        .service:not(:first-child) { padding-left: 22px; }
-        .service:last-child { border-right: 0; }
-        .service-number { color: var(--yellow); font-family: var(--display); font-size: 30px; }
-        h3 { margin: 12px 0 8px; font-size: 18px; }
-        .service p { margin: 0; color: var(--muted); font-size: 14px; }
-        .contact { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: end; background: var(--yellow); color: #0a0b0d; padding: 70px; }
-        .contact h2 { color: #0a0b0d; }
-        .contact p { max-width: 380px; color: #393b19; }
-        .contact .button { background: #0a0b0d; border-color: #0a0b0d; color: var(--yellow); }
-        .contact .button:hover { background: #24261b; border-color: #24261b; }
-        footer { display: flex; justify-content: space-between; padding: 25px 0; color: var(--muted); font-size: 12px; }
-        @media (max-width: 760px) {
-            .wrap { width: min(100% - 32px, 600px); }
-            nav { gap: 14px; font-size: 12px; }
-            .hero { display: block; padding: 65px 0 75px; }
-            .hero-art { min-height: 310px; margin-top: 55px; }
-            .hero-art::before { width: 230px; height: 230px; }
-            section { padding: 65px 0; }
+        .hero-art::after { content: "SIGN IN / LOAD SAVE / PLAY"; position: absolute; right: 28px; bottom: 22px; color: var(--yellow); font-size: 11px; font-weight: 700; letter-spacing: .1em; }
+        .hero-logo { position: relative; z-index: 1; width: min(82%, 380px); mix-blend-mode: screen; filter: drop-shadow(12px 14px 0 rgba(10, 11, 13, .8)); }
+        .art-note { position: absolute; z-index: 2; left: 28px; top: 28px; color: var(--yellow); font-size: 12px; font-weight: 700; line-height: 1.25; }
+        .art-badge {
+            position: absolute; z-index: 2; left: 28px; bottom: 24px;
+            padding: 5px 9px; background: var(--yellow); color: #0a0b0d;
+            font-size: 11px; font-weight: 700; letter-spacing: .06em;
+        }
+
+        section { padding: 90px 0; border-top: 1px solid var(--line); }
+        .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 40px; margin-bottom: 38px; }
+        h2 {
+            margin: 12px 0 0; font-family: var(--display); font-weight: 400;
+            font-size: clamp(44px, 6vw, 70px); letter-spacing: .01em; line-height: .95;
+        }
+        .section-heading p { max-width: 310px; margin: 0; color: var(--muted); font-size: 14px; }
+
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+        .step { min-height: 190px; padding: 24px 26px 0 0; border-right: 1px solid var(--line); }
+        .step:not(:first-child) { padding-left: 26px; }
+        .step:last-child { border-right: 0; }
+        .step-number { color: var(--yellow); font-family: var(--display); font-size: 30px; line-height: 1; }
+        .step h3 { margin: 16px 0 7px; font-size: 17px; }
+        .step p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+        .section-cta { margin-top: 38px; }
+
+        .community-box {
+            display: flex; justify-content: space-between; align-items: center; gap: 40px;
+            padding: 40px 42px; background: var(--panel);
+            border: 1px solid var(--line); border-left: 3px solid var(--yellow);
+        }
+        .community-box p { max-width: 560px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.8; }
+        .community-box strong { color: var(--ink); }
+
+        .about-lead { max-width: 760px; margin: 0 0 34px; color: var(--muted); font-size: 17px; line-height: 1.8; }
+        .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); }
+        .about-point { min-height: 160px; padding: 24px 26px 0 0; border-right: 1px solid var(--line); }
+        .about-point:not(:first-child) { padding-left: 26px; }
+        .about-point:last-child { border-right: 0; }
+        .about-point span { color: var(--yellow); font-family: var(--display); font-size: 26px; }
+        .about-point h3 { margin: 12px 0 6px; font-size: 16px; }
+        .about-point p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+
+        footer {
+            display: flex; justify-content: space-between; gap: 16px;
+            padding: 25px 0 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px;
+        }
+        footer a:hover { color: var(--yellow); }
+
+        @media (max-width: 860px) {
+            .hero { grid-template-columns: 1fr; gap: 42px; min-height: 0; padding: 52px 0 70px; }
+            .hero-art { min-height: 320px; }
+            section { padding: 64px 0; }
             .section-heading { display: block; }
-            .section-heading p { margin-top: 18px; }
-            .projects { display: block; }
-            .project { min-height: 280px; margin-bottom: 16px; }
-            .project-main { min-height: 350px; }
-            .project:nth-child(3) { min-height: 280px; }
-            .services { display: block; }
-            .service, .service:not(:first-child) { padding: 22px 0; border-right: 0; border-bottom: 1px solid var(--line); }
-            .contact { display: block; padding: 42px 28px; }
-            .contact .actions { margin-top: 30px; }
+            .section-heading p { margin-top: 16px; }
+            .steps, .about-grid { grid-template-columns: 1fr; }
+            .step, .step:not(:first-child), .about-point, .about-point:not(:first-child) {
+                padding: 22px 0; border-right: 0; border-bottom: 1px solid var(--line); min-height: 0;
+            }
+            .about-point:last-child, .step:last-child { border-bottom: 0; }
+            .community-box { display: block; padding: 30px 26px; }
+            .community-box .button { margin-top: 22px; }
+        }
+        @media (max-width: 620px) {
+            .wrap { width: calc(100% - 32px); }
+            .topbar { padding: 18px 0; gap: 10px; flex-wrap: wrap; }
+            .topbar nav { width: 100%; justify-content: space-between; gap: 8px; font-size: 11.5px; }
+            .topbar nav .nav-cta { padding: 6px 8px; }
+            .brand-logo { width: 46px; height: 30px; }
+            .hero h1 { font-size: clamp(52px, 14vw, 74px); }
+            .hero-art { min-height: 280px; }
+            .art-note { left: 20px; top: 20px; }
+            .art-badge { left: 20px; bottom: 18px; }
+            .hero-art::after { right: 20px; bottom: 18px; font-size: 10px; }
             footer { display: block; }
             footer span { display: block; margin-top: 8px; }
         }
@@ -106,72 +159,100 @@
     <header class="wrap topbar">
         <a class="brand" href="index.html"><img class="brand-logo" src="image/FuncRangeLogo.png" alt="FuncRange logo"><span class="brand-name">FUNCRANGE</span></a>
         <nav aria-label="主导航">
-            <a href="#work">游戏</a>
-            <a href="#services">我们是谁</a>
-            <a href="#contact">联系</a>
+            <a class="nav-cta" href="cloud.html">前往云存档</a>
+            <a href="community.html">社区</a>
+            <a href="#about">关于我们</a>
+            <a href="help.html">帮助</a>
         </nav>
     </header>
 
     <main>
         <section class="wrap hero">
             <div>
-                <div class="eyebrow">Independent game studio · 2024—</div>
-                <h1>把想象力<br>做成可玩的<em>世界。</em></h1>
-                <p class="hero-copy">FuncRange 是一家独立游戏开发工作室。我们做原创游戏，也做让人想一直玩下去的体验。</p>
+                <div class="eyebrow">Cloud Saves · Account</div>
+                <h1>进度，<br>随时<em>取回。</em></h1>
+                <p class="hero-copy">登录你的 FuncRange 账户，查看玩过的游戏和云存档，一键下载到本地。换设备、重装游戏，进度都还在。</p>
                 <div class="actions">
-                    <a class="button" href="#work">查看游戏作品 <span>↘</span></a>
-                    <a class="text-link" href="#contact">和我们聊聊</a>
+                    <a class="button" href="cloud.html">前往云存档 <span>↗</span></a>
+                    <a class="text-link" href="help.html">查看帮助</a>
                 </div>
+                <p class="hero-note">登录或注册账户即可使用。网页只读取云存档，不会修改游戏进度。</p>
             </div>
-            <div class="hero-art" aria-label="创意区间抽象视觉">
+            <div class="hero-art" aria-label="FuncRange 云存档">
                 <img class="hero-logo" src="image/FuncRangeLogo%20.png" alt="FuncRange 游戏开发工作室 logo">
-                <div class="art-note">BUILD<br>STRANGE<br>WORLDS.</div>
+                <div class="art-note">YOUR ACCOUNT<br>YOUR SAVES<br>ANY DEVICE.</div>
+                <div class="art-badge">CLOUD SAVES</div>
             </div>
         </section>
 
-        <section id="work">
+        <section id="how">
             <div class="wrap">
                 <div class="section-heading">
-                    <h2>正在制作</h2>
-                    <p>从一个奇怪的念头开始，到一个真正想让你玩下去的世界。</p>
+                    <div>
+                        <div class="eyebrow">How it works</div>
+                        <h2>三步取回进度。</h2>
+                    </div>
+                    <p>不用记路径，也不用找文件夹。登录后选择游戏，就能下载存档。</p>
                 </div>
-                <div class="projects">
-                    <article class="project project-main">
-                        <div class="project-visual">PROJECT 01</div>
-                        <div class="project-meta"><strong>未命名冒险游戏</strong><span>开发中 · PC / Console</span></div>
+                <div class="steps">
+                    <article class="step">
+                        <span class="step-number">01</span>
+                        <h3>登录账户</h3>
+                        <p>使用你的 FuncRange 账户登录，还没有账户可以现场注册。</p>
                     </article>
-                    <article class="project project-side">
-                        <div class="project-visual">◎</div>
-                        <div class="project-meta"><strong>小小的宇宙</strong><span>概念阶段 · 原创</span></div>
+                    <article class="step">
+                        <span class="step-number">02</span>
+                        <h3>选择游戏</h3>
+                        <p>玩过并上传过存档的游戏会自动列出来。</p>
                     </article>
-                    <article class="project">
-                        <div class="project-visual">PLAY<br>TEST</div>
-                        <div class="project-meta"><strong>实验场</strong><span>玩法研究 · 原型</span></div>
+                    <article class="step">
+                        <span class="step-number">03</span>
+                        <h3>下载存档</h3>
+                        <p>点一下「下载」，存档就会保存到本地。</p>
                     </article>
+                </div>
+                <div class="section-cta"><a class="button" href="cloud.html">前往云存档 <span>↗</span></a></div>
+            </div>
+        </section>
+
+        <section id="community">
+            <div class="wrap">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">Community</div>
+                        <h2>社区。</h2>
+                    </div>
+                    <p>加入 QQ 群，或者去 B 站看看我们最近在做什么。</p>
+                </div>
+                <div class="community-box">
+                    <p><strong>社区入口已经开放。</strong> 想聊游戏、反馈问题、找队友，或者只是打个招呼，都欢迎来社区。</p>
+                    <a class="button" href="community.html">进入社区 <span>↗</span></a>
                 </div>
             </div>
         </section>
 
-        <section id="services">
+        <section id="about">
             <div class="wrap">
                 <div class="section-heading">
-                    <h2>我们是谁</h2>
+                    <div>
+                        <div class="eyebrow">About</div>
+                        <h2>关于我们。</h2>
+                    </div>
                     <p>我们相信游戏不只是被完成的产品，也是可以被进入、被记住的地方。</p>
                 </div>
-                <div class="services">
-                    <article class="service"><span class="service-number">01</span><h3>原创游戏</h3><p>从世界观、玩法和美术方向开始，做属于自己的游戏。</p></article>
-                    <article class="service"><span class="service-number">02</span><h3>玩法实验</h3><p>快速原型、反复测试，把一个有趣的瞬间发展成完整体验。</p></article>
-                    <article class="service"><span class="service-number">03</span><h3>共同开发</h3><p>和志同道合的团队一起，把有潜力的项目推向更远的地方。</p></article>
+                <p class="about-lead">FuncRange 是一家独立游戏开发工作室。我们做原创游戏，也做让人想一直玩下去的体验。</p>
+                <div class="about-grid">
+                    <article class="about-point"><span>01</span><h3>原创游戏</h3><p>从世界观、玩法和美术方向开始，做属于自己的游戏。</p></article>
+                    <article class="about-point"><span>02</span><h3>玩法实验</h3><p>快速原型、反复测试，把一个有趣的瞬间发展成完整体验。</p></article>
+                    <article class="about-point"><span>03</span><h3>共同开发</h3><p>和志同道合的团队一起，把有潜力的项目推向更远的地方。</p></article>
                 </div>
             </div>
-        </section>
-
-        <section id="contact" class="wrap contact">
-            <div><div class="eyebrow">Have a game in mind?</div><h2>一起创造一个<br>值得进入的世界。</h2></div>
-            <div><p>无论你是想聊合作、分享一个点子，还是单纯想认识我们，都欢迎来信。</p><a class="button" href="mailto:hello@funcrange.studio">hello@funcrange.studio <span>↗</span></a></div>
         </section>
     </main>
 
-    <footer class="wrap"><a href="index.html">FUNCRANGE 游戏开发工作室</a><span>© 2024—2026 · Made with curiosity</span></footer>
+    <footer class="wrap">
+        <a href="index.html">FUNCRANGE 游戏开发工作室</a>
+        <span>© 2024—2026 · <a href="cloud.html">前往云存档</a> · <a href="community.html">社区</a> · <a href="#about">关于我们</a> · <a href="help.html">帮助</a></span>
+    </footer>
 </body>
 </html>
